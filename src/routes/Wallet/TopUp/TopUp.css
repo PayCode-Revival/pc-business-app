@@ -1,0 +1,14 @@
+#top-up {}
+
+#wallet-balance {
+    background-color: var(--tertiary-color);
+}
+
+#top-up-wallet-form {
+    background-color: var(--tertiary-color);
+}
+
+.form-floating-group input {
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0;
+}

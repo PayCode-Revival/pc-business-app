@@ -1,0 +1,31 @@
+#sidebar {
+    background-color: var(--secondary-color);
+    margin-left: -0.74em;
+}
+
+.sidebar-shown {
+    max-width: 20vw;
+    opacity: 1;
+    transition: all 0.5s linear;
+}
+
+.sidebar-hidden {
+    max-width: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: all 0.5s linear;
+}
+
+#business-name {
+    color: var(--primary-color);
+    font-size: 1.2vw;
+    font-weight: bolder;
+}
+
+#business-logo {
+    width: 10%;
+}
+
+#logged-in-user {
+    font-size: 1.1vw;
+}

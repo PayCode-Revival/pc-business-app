@@ -1,0 +1,30 @@
+#header {
+    /* border-bottom: 1px solid white; */
+    color: whitesmoke;
+    height: 10% !important;
+    max-height: 10% !important;
+}
+
+#header-search {
+    gap: 1em;
+    flex: 2;
+}
+
+#header-search-input {
+    border: none;
+    outline: none;
+    width: 60%;
+}
+
+#header-search-input::placeholder {
+    color: var(--accent-color);
+    font-weight: bolder;
+}
+
+#logged-in-user-img {
+    width: 15%;
+}
+
+#logged-in-user-name-text {
+    font-size: large;
+}

@@ -1,0 +1,62 @@
+.nav-item-title {
+    font-size: 1vw;
+    cursor: pointer;
+}
+
+#navbar-container {
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+
+.nav-item-container {
+    cursor: pointer;
+    transition: 0.25s ease-in-out;
+}
+
+.sub-menu {
+    border-radius: 0.5em !important;
+    font-size: 1vw !important;
+    width: fit-content !important;
+    transition: 0.25s ease-in-out;
+}
+
+a,
+a:hover,
+a:visited,
+a:active,
+a:focus,
+.navbar-item {
+    text-decoration: none !important;
+    color: var(--primary-color);
+}
+
+.nav-item-container:hover,
+.sub-menu:hover {
+    transform: scale(1.05);
+    background-color: var(--tertiary-color);
+    padding: 0.5em 1em !important;
+    transition: 0.25s ease-in-out;
+    border-radius: 0.5em !important;
+}
+
+.active,
+.active:hover {
+    background-color: var(--accent-color) !important;
+    border-radius: 0.5em !important;
+    color: var(--primary-color);
+}
+
+.nav-item-collapsed {
+    display: none;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: all 0.15s ease-out;
+}
+
+.nav-item-visible {
+    display: flex;
+    max-height: 100vh;
+    opacity: 1;
+    transition: all 0.15s ease-in;
+}

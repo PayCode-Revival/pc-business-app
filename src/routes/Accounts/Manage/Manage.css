@@ -1,0 +1,9 @@
+.action-buttons {}
+
+.action-buttons:hover {
+    background-color: var(--secondary-color);
+    border: none;
+    outline: none;
+    outline-style: none;
+    cursor: pointer;
+}

@@ -1,0 +1,38 @@
+#navbar {
+    transition: all 0.15s linear;
+}
+
+#navbar li {
+    transition: all 0.15s linear;
+    color: #9899AC;
+    padding: 1em 2em;
+}
+
+#navbar li:hover {
+    transform: scale(1.05);
+    cursor: pointer;
+    transition: all 0.25s linear;
+    background-color: #282839;
+    border-radius: 0.5em;
+}
+
+.active,
+.active:hover {
+    border-radius: 0.5em;
+    background-color: #435EBE;
+    padding: 1em 2em;
+    border: 1px solid #1E1E2D;
+    color: white !important;
+    transition: all 0.15s linear;
+}
+
+.not-shown {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: 1s;
+}
+
+.sub-menu {
+    width: fit-content;
+}

@@ -1,0 +1,26 @@
+#main {
+    animation: fadeIn 1s ease-in forwards;
+}
+
+.chart {
+    background-color: #1E1E2D;
+}
+
+#quick-summary {}
+
+#quick-summary::-webkit-scrollbar {
+    /* height: 5px; */
+}
+
+#charts-analytics {}
+
+#bar-chart {}
+
+#pie-chart-render {
+    transition: 0.5s linear;
+}
+
+#pie-chart-render:hover {
+    /* transform: scale(1.); */
+    /* padding: 5% */
+}
