@@ -1,15 +1,28 @@
 // Components
-import React from "react"
+import React, { useContext } from "react"
 import { Icon } from "@mui/material"
-import { greeting } from "../../statics/allFunctions"
-import { faker } from "@faker-js/faker"
+import {
+  greeting,
+  retrievingPlaceholder,
+  getBusinessUserRoleName,
+} from "../../statics/allFunctions"
+import { ApiDataContext } from "../../contexts/ApiDataContext"
+
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faCoffee } from "@fortawesome/free-solid-svg-icons"
 
 // CSS
 import "./Header.css"
 
 export default function Header({ sideBarToggleFunc, currentState }) {
-  const name = faker.name.findName()
-  const firstName = name.split(" ")[0]
+  const { loggedInUser, businessUserRoles } = useContext(ApiDataContext)
+
+  const userInfo = loggedInUser ? (
+    loggedInUser
+  ) : (
+    <FontAwesomeIcon icon={faCoffee} />
+  )
+
   return (
     <div id="header" className="container-fluid user-select-none">
       <div className="row g-3 ">
@@ -30,17 +43,25 @@ export default function Header({ sideBarToggleFunc, currentState }) {
           </div>
 
           {/* Greeting */}
-          <div id="header-greeting" className="d-flex align-items-center ms-5">
-            <Icon
-              sx={{ color: "var(--primary-color)" }}
-              style={{ fontSize: 30 }}>
-              wb_sunny
-            </Icon>
+          {loggedInUser ? (
+            <div
+              id="header-greeting"
+              className="d-flex align-items-center ms-5 fadeIn">
+              <Icon
+                sx={{ color: "var(--primary-color)" }}
+                style={{ fontSize: "2vw" }}>
+                wb_sunny
+              </Icon>
 
-            <span id="greeting-text text-nowrap" className="fw-bolder ms-2">
-              {greeting()}, {firstName}
-            </span>
-          </div>
+              <span
+                id="greeting-text text-nowrap"
+                className="fw-bolder ms-2 fs-4">
+                {greeting()}, {userInfo.first_name}
+              </span>
+            </div>
+          ) : (
+            <span className="mx-auto">{retrievingPlaceholder}</span>
+          )}
         </div>
 
         {/* Search */}
@@ -68,12 +89,27 @@ export default function Header({ sideBarToggleFunc, currentState }) {
           />
           <div id="logged-in-user-name" className="d-flex flex-column ms-3">
             <span id="logged-in-user-name-text" className="fw-bold">
-              {name}
+              {loggedInUser
+                ? userInfo.first_name + " " + userInfo.last_name
+                : retrievingPlaceholder}
             </span>
 
-            <span id="business-role" className="fw-bold text-muted">
-              <u style={{ textUnderlineOffset: "0.25em" }}>Head Usher</u>
-              <span className="badge bg-primary ms-1">ADMIN</span>
+            <span
+              id="business-role"
+              className=""
+              style={{ color: "var(--cruise-color)" }}>
+              <u
+                style={{
+                  textUnderlineOffset: "0.25em",
+                  color: "var(--cruise-color)",
+                }}>
+                {businessUserRoles && userInfo.business_role}
+              </u>
+              <span className="badge bg-primary ms-1 text-uppercase">
+                {businessUserRoles &&
+                  businessUserRoles &&
+                  getBusinessUserRoleName(userInfo.role, businessUserRoles)}
+              </span>
             </span>
           </div>
         </div>

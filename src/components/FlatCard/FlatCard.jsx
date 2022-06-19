@@ -11,7 +11,7 @@ export const FlatCard = ({
 }) => {
   return (
     <div
-      className="flat-card d-flex justify-content-between align-items-center p-3"
+      className="flat-card d-flex justify-content-between align-items-center p-3 btn"
       style={{ ...styles.cardContainer }}>
       {/* Icon Container */}
       <div
@@ -31,14 +31,14 @@ export const FlatCard = ({
       <div className="title-text d-flex flex-column justify-content-between flex-grow-1 me-5">
         {/* Title */}
         <span
-          className="flat-card-title text-nowrap fw-bolder"
-          style={{ ...styles.title }}>
+          className="d-flex flat-card-title text-nowrap fw-bolder"
+          style={{ color: "var(--fun-color)", ...styles.title }}>
           {title}
         </span>
 
         {/* Text */}
         <span
-          className="flat-card-text text-nowrap py-2"
+          className="flat-card-text text-nowrap py-2 d-flex"
           style={{ ...styles.text }}>
           {text}
         </span>

@@ -29,6 +29,7 @@ function createWindow() {
         frame: false,
         fullscreenable: true,
         resizable: true,
+        // fullscreen: true
 
     });
 

@@ -1,9 +1,9 @@
-import React, { useState } from "react"
+import React, { useState, useContext } from "react"
 import "./Transfer.css"
 import "./../../../assets/css/styles-dark-mode.css"
 import { SectionHeader } from "../../../components/SectionHeader/SectionHeader"
-import { generateRandomNumber } from "../../../statics/allFunctions"
 import { appConfig } from "../../../statics/config"
+import { ApiDataContext } from "../../../contexts/ApiDataContext"
 
 export default function TopUp() {
   const [amountInput, setAmountInput] = useState("")
@@ -20,6 +20,9 @@ export default function TopUp() {
       setAmountInput(parsedVal.toLocaleString())
     }
   }
+
+  const { walletBalance } = useContext(ApiDataContext)
+
   return (
     <>
       <SectionHeader text={"Transfer To Another Wallet"} />
@@ -28,7 +31,6 @@ export default function TopUp() {
           <div id="top-up-wallet-form" className="col col-6 flat-card-style">
             <div className="p-3">
               {/* Amount */}
-
               <div className="input-group input-group-lg mb-2">
                 <span className="input-group-text fw-bolder border-none outline-none">
                   ₦
@@ -49,21 +51,21 @@ export default function TopUp() {
               </span>
 
               {/* Wallet ID */}
-              <div class="form-floating mt-5">
+              <div className="form-floating mt-5">
                 <input
                   type="number"
-                  class="form-control is-invalid"
+                  className="form-control is-invalid"
                   id="wallet-id"
                   placeholder="e.g. PC14S78"
                 />
-                <label for="wallet-id" className="">
+                <label htmlFor="wallet-id" className="">
                   Recipient Wallet ID
                 </label>
               </div>
               {/* Submit Button */}
-              <div class="d-grid gap-2 col-6 mx-auto mt-5">
+              <div className="d-grid gap-2 col-6 mx-auto mt-5">
                 <button
-                  class="btn btn-block text-white fw-bolder zoomIn"
+                  className="btn btn-block text-white fw-bolder zoomIn"
                   type="button"
                   style={{ backgroundColor: "var(--accent-color)" }}>
                   Transfer
@@ -82,7 +84,7 @@ export default function TopUp() {
               <span
                 className="fw-bolder h4 text-light text-nowrap"
                 style={{ letterSpacing: "2.5px" }}>
-                ₦{generateRandomNumber(168870, 100000000).toLocaleString()}
+                {walletBalance}
               </span>
             </div>
           </div>

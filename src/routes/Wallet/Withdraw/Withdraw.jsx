@@ -1,9 +1,9 @@
-import React, { useState } from "react"
+import React, { useState, useContext } from "react"
 import "./Withdraw.css"
 import "./../../../assets/css/styles-dark-mode.css"
 import { SectionHeader } from "../../../components/SectionHeader/SectionHeader"
-import { generateRandomNumber } from "../../../statics/allFunctions"
 import { appConfig } from "../../../statics/config"
+import { ApiDataContext } from "../../../contexts/ApiDataContext"
 
 export default function TopUp() {
   const [amountInput, setAmountInput] = useState("")
@@ -20,6 +20,8 @@ export default function TopUp() {
       setAmountInput(parsedVal.toLocaleString())
     }
   }
+  const { walletBalance } = useContext(ApiDataContext)
+
   return (
     <>
       <SectionHeader text={"Withdraw From Wallet"} />
@@ -50,23 +52,23 @@ export default function TopUp() {
               </>
 
               {/* Select Card */}
-              <div class="form-floating mt-5">
+              <div className="form-floating mt-5">
                 <select
-                  class="form-select"
+                  className="form-select"
                   id="select-card"
                   aria-label="Select Account">
-                  <option selected>Select A Saved Account...</option>
+                  <option>Select A Saved Account...</option>
                   <option value="1">Account One</option>
                   <option value="2">Account Two</option>
                   <option value="3">Account Three</option>
                 </select>
-                <label for="select-card">Select Bank Account</label>
+                <label htmlFor="select-card">Select Bank Account</label>
               </div>
 
               {/* Submit Button */}
-              <div class="d-grid gap-2 col-6 mx-auto mt-5">
+              <div className="d-grid gap-2 col-6 mx-auto mt-5">
                 <button
-                  class="btn btn-block text-white fw-bolder zoomIn"
+                  className="btn btn-block text-white fw-bolder zoomIn"
                   type="button"
                   style={{ backgroundColor: "var(--accent-color)" }}>
                   Withdraw
@@ -85,7 +87,7 @@ export default function TopUp() {
               <span
                 className="fw-bolder h4 text-light text-nowrap"
                 style={{ letterSpacing: "2.5px" }}>
-                ₦{generateRandomNumber(168870, 100000000).toLocaleString()}
+                {walletBalance}
               </span>
             </div>
           </div>

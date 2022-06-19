@@ -78,18 +78,6 @@ export const navbarSchema = [{
     {
         title: "Settings",
         iconName: "settings",
-        children: [{
-                pathName: "application",
-                title: "Application"
-            },
-            {
-                pathName: "transaction",
-                title: "Transaction"
-            }, {
-                pathName: "license",
-                title: "License"
-            }
-        ],
     },
     {
         title: "Help",

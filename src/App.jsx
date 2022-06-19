@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import "./assets/css/styles-dark-mode.css"
 import TitleBar from "./components/TitleBar/TitleBar"
 import Header from "./components/Header/Header"
@@ -9,6 +9,10 @@ import Main from "./components/Main/Main"
 export default function App() {
   const [sidebar, setSideBar] = useState(true)
   const toggleSideBar = () => setSideBar(!sidebar)
+
+  // #################################################### API Functions Start ####################################################
+
+  // #################################################### API Functions End ####################################################
 
   return (
     <>

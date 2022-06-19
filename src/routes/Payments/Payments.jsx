@@ -22,7 +22,7 @@ export default function Payments() {
       {/* Contents */}
       <div
         id="accounts"
-        className={`d-flex flex-grow-1 h-100 overflow-auto scrollbar`}>
+        className={`d-flex flex-grow-1 overflow-auto scrollbar`}>
         <SidebarAlt currentState={sidebar} openedNavItem={"Payments"} />
         <div
           id="accounts-contents"

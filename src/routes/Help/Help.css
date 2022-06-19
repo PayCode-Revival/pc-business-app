@@ -1,0 +1,17 @@
+.tab-pane {
+    color: var(--text-color);
+    background-color: var(--tertiary-color) !important;
+}
+
+.pills-custom:hover {
+    background-color: var(--tertiary-color) !important;
+    cursor: pointer;
+}
+
+.nav-link {
+    background-color: var(--tertiary-color) !important;
+}
+
+.nav-item>.active {
+    background-color: var(--accent-color) !important;
+}
