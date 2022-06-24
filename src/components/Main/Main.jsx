@@ -89,7 +89,7 @@ const Main = ({}) => {
               <FlatCard
                 iconName="calendar_today"
                 title="Today's Transactions"
-                text={totalTransVal}
+                text={totalTransVal ? totalTransVal : 0}
               />
             </div>
           </div>
@@ -103,7 +103,7 @@ const Main = ({}) => {
                   "en-us",
                   { month: "long" }
                 ).format(new Date())}`}
-                text={monthTotal}
+                text={monthTotal ? monthTotal : 0}
               />
             </div>
           </div>

@@ -3,4 +3,4 @@ export const appConfig = {
     maxDeposit: 1000000,
 }
 
-export const apiToken = "30|BhL2cYvAfrEf0Aa6dO1KR7WwKeDH9NAtStygUhXK"
+export const apiToken = "33|SV6TMH93iyBLgaOAI1W6iC0Uq4wX7tDn0EiZfFhD"

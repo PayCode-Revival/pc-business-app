@@ -14,7 +14,7 @@ export default function SidebarAlt({
     <div
       className={`${
         currentState ? "sidebar-shown" : "sidebar-hidden"
-      } d-none d-lg-block h-100 mh-100`}>
+      } d-none d-lg-block h-100 mh-100 col-2`}>
       <div
         id="sidebar"
         className="d-flex flex-column justify-content-around p-3 h-100 mh-100 rounded">

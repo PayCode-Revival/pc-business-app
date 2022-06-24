@@ -8,6 +8,7 @@
     --accent-color: #435EBE;
     --fun-color: #9694FF;
     --cruise-color: #7C8DB5;
+    --danger-color: #DC3545;
 }
 
 .dark-mode {
@@ -133,6 +134,18 @@ input[type="color"] {
     border-bottom: 2px solid var(--primary-color);
     margin-bottom: 2%;
     margin-top: -3%;
+}
+
+.custom-btn {
+    border: none;
+    outline: none;
+    padding: 0.5vw 1vw;
+    color: var(--primary-color) !important;
+}
+
+.custom-active {
+    background-color: var(--accent-color);
+    transform: scale(1.05);
 }
 
 

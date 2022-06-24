@@ -1,52 +1,77 @@
-import React, { useContext } from "react"
-import { ModalContext } from "../../contexts/ModalContext"
+import React from "react"
+import { useNavigate } from "react-router-dom"
+import { retrievingPlaceholder } from "../../statics/allFunctions"
+import "./Modal.css"
 
-export default function Modal({ title = "Edit", body = "Hello World" }) {
+export default function Modal({
+  title = "Edit",
+  body = retrievingPlaceholder,
+  cancelBtnText = "Cancel",
+  saveBtnText = "Save",
+  showFooter = true,
+  showCloseIcon = true,
+  saveBtnOnClickFunc = () => {},
+  toastFunc = () => {},
+  refreshOnClose = true,
+  navigateAfterClose = false,
+}) {
+  const navigate = useNavigate()
+
   return (
     <div
       className="modal top m-5 p-5 fade fadeIn"
-      id="exampleModal"
+      id={"exampleModal"}
       tabIndex="-1"
       aria-labelledby="exampleModalLabel"
       aria-hidden="true"
       data-mdb-backdrop="false"
       data-mdb-keyboard="false">
       <div className="modal-dialog modal-dialog-centered modal-lg">
-        <div className="modal-content border">
-          <div
-            className="modal-header"
-            style={{
-              backgroundColor: "var(--bg-dark)",
-              color: "var(--primary-color)",
-            }}>
+        <div className="modal-content">
+          <div className="modal-header">
             <h5 className="modal-title" id="exampleModalLabel">
               {title}
             </h5>
-            <button
-              type="button"
-              className="btn-close"
-              data-mdb-dismiss="modal"
-              aria-label="Close"
-              style={{ backgroundColor: "var(--primary-color)" }}></button>
+            {showCloseIcon && (
+              <button
+                type="button"
+                className="btn-close"
+                data-mdb-dismiss="modal"
+                aria-label="Close"
+                style={{ backgroundColor: "var(--primary-color)" }}></button>
+            )}
           </div>
-          <div
-            className="modal-body p-3 d-flex"
-            style={{ backgroundColor: "var(--bg-dark)" }}>
-            {body}
-          </div>
-          <div
-            className="modal-footer"
-            style={{ backgroundColor: "var(--bg-dark)" }}>
-            <button
-              type="button"
-              className="btn btn-danger"
-              data-mdb-dismiss="modal">
-              Close
-            </button>
-            <button type="button" className="btn btn-primary">
-              Save
-            </button>
-          </div>
+          <div className="modal-body p-3"> {body}</div>
+          {showFooter && (
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-danger"
+                data-mdb-dismiss="modal">
+                {cancelBtnText}
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                data-mdb-dismiss="modal"
+                onClick={() => {
+                  saveBtnOnClickFunc()
+                  toastFunc(true)
+                  refreshOnClose &&
+                    setTimeout(() => {
+                      navigate("./")
+                      toastFunc(false)
+                    }, 1000)
+                  navigateAfterClose &&
+                    setTimeout(() => {
+                      navigate(navigateAfterClose)
+                      toastFunc(false)
+                    }, 1000)
+                }}>
+                {saveBtnText}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

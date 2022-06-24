@@ -37,7 +37,7 @@ export default function Header({ sideBarToggleFunc, currentState }) {
             onClick={sideBarToggleFunc}>
             <Icon
               sx={{ color: "var(--primary-color)" }}
-              style={{ fontSize: 48 }}>
+              style={{ fontSize: "3vw" }}>
               {!currentState ? "menu" : "close"}
             </Icon>
           </div>
@@ -46,16 +46,16 @@ export default function Header({ sideBarToggleFunc, currentState }) {
           {loggedInUser ? (
             <div
               id="header-greeting"
-              className="d-flex align-items-center ms-5 fadeIn">
+              className="d-flex align-items-center ms-5 fadeIn text-nowrap">
               <Icon
                 sx={{ color: "var(--primary-color)" }}
                 style={{ fontSize: "2vw" }}>
-                wb_sunny
+                tag_faces
               </Icon>
 
               <span
                 id="greeting-text text-nowrap"
-                className="fw-bolder ms-2 fs-4">
+                className="fw-bolder ms-2 fs-5">
                 {greeting()}, {userInfo.first_name}
               </span>
             </div>

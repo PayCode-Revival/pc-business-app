@@ -7,10 +7,7 @@ const { ipcRenderer } = electron
 
 export default function TitleBar() {
   function windowControl(action) {
-    console.log(action)
-    ipcRenderer.invoke("window-controls", action).then((result) => {
-      console.log(action, result)
-    })
+    ipcRenderer.invoke("window-controls", action).then((result) => {})
   }
   return (
     <div

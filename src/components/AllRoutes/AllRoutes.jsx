@@ -7,6 +7,7 @@ import Payments from "../../routes/Payments/Payments"
 import Reports from "../../routes/Reports/Reports"
 import Users from "../../routes/Users/Users"
 import { ApiDataContext } from "../../contexts/ApiDataContext"
+import { UserFormContext } from "../../contexts/UsersFormContext"
 import {
   retrievingPlaceholder,
   makeApiRequest,
@@ -14,7 +15,7 @@ import {
 } from "./../../statics/allFunctions"
 import Settings from "../../routes/Settings/Settings"
 import Help from "../../routes/Help/Help"
-import { ModalContext } from "../../contexts/ModalContext"
+import Modal from "../Modal/Modal"
 
 export const AllRoutes = () => {
   const location = useLocation()
@@ -30,86 +31,84 @@ export const AllRoutes = () => {
   const [loggedInUser, setLoggedInUser] = useState(null)
   const [businessUserRoles, setBusinessUserRoles] = useState(null)
 
-  const [modalBody, setModalBody] = useState("Modal Body")
-
   const updateWalletBalance = (value) => {
     setWalletBalance(currency(value))
   }
 
+  // API Call For Logged In User Information
+  async function getLoggedInUserInfo() {
+    const loggedInUserInfo = await makeApiRequest(
+      "business/users/current",
+      "get"
+    )
+    setLoggedInUser(loggedInUserInfo)
+  }
+
+  // API Call For Business User Roles
+  async function getBusinessUserRoles() {
+    const roles = await makeApiRequest("business/user-roles/all", "get")
+    setBusinessUserRoles(roles)
+  }
+
+  // API Call For Business Info
+  async function getBusinessInfo() {
+    const businessInfo = await makeApiRequest("business/view", "get")
+    setBusinessInfo(businessInfo)
+    updateWalletBalance(businessInfo.wallet_balance)
+  }
+
+  // API Call For Transactions Made In The Past 7 Days
+  async function getRecentTransactions() {
+    const recentTransactions = await makeApiRequest(
+      "transactions/some/7",
+      "get"
+    )
+    setRecentTransactions(recentTransactions)
+  }
+
+  // API Call For Transactions Made This Month
+  async function getMonthTransactions() {
+    const monthTransactions = await makeApiRequest(
+      "transactions/month/current",
+      "get"
+    )
+    setMonthTransactions(monthTransactions)
+  }
+
+  // API Cal For Saved Bank Accounts
+  async function getSavedBankAccounts() {
+    const savedBankAccounts = await makeApiRequest(
+      "business/bank-accounts/all",
+      "get"
+    )
+    setSavedBankAccounts(savedBankAccounts)
+  }
+
+  // API Cal For User Accounts
+  async function getUserAccounts() {
+    const userAccounts = await makeApiRequest("business/users/all", "get")
+    setUserAccounts(userAccounts)
+  }
+
+  // API Call For Payment Categories
+  async function getPaymentCategories() {
+    const paymentCategories = await makeApiRequest(
+      "business/payment-categories/all",
+      "get"
+    )
+    setPaymentCategories(paymentCategories)
+  }
+
+  // API Call For Transaction Statuses
+  async function getTransactionStatuses() {
+    const transactionStatuses = await makeApiRequest(
+      "business/payment-status/all",
+      "get"
+    )
+    setTransactionStatuses(transactionStatuses)
+  }
+
   useEffect(() => {
-    // API Call For Logged In User Information
-    async function getLoggedInUserInfo() {
-      const loggedInUserInfo = await makeApiRequest(
-        "business/users/current",
-        "get"
-      )
-      setLoggedInUser(loggedInUserInfo)
-    }
-
-    // API Call For Business User Roles
-    async function getBusinessUserRoles() {
-      const roles = await makeApiRequest("business/user-roles/all", "get")
-      setBusinessUserRoles(roles)
-    }
-
-    // API Call For Business Info
-    async function getBusinessInfo() {
-      const businessInfo = await makeApiRequest("business/view", "get")
-      setBusinessInfo(businessInfo)
-      updateWalletBalance(businessInfo.wallet_balance)
-    }
-
-    // API Call For Transactions Made In The Past 7 Days
-    async function getRecentTransactions() {
-      const recentTransactions = await makeApiRequest(
-        "transactions/some/7",
-        "get"
-      )
-      setRecentTransactions(recentTransactions)
-    }
-
-    // API Call For Transactions Made This Month
-    async function getMonthTransactions() {
-      const monthTransactions = await makeApiRequest(
-        "transactions/month/current",
-        "get"
-      )
-      setMonthTransactions(monthTransactions)
-    }
-
-    // API Cal For Saved Bank Accounts
-    async function getSavedBankAccounts() {
-      const savedBankAccounts = await makeApiRequest(
-        "business/bank-accounts/all",
-        "get"
-      )
-      setSavedBankAccounts(savedBankAccounts)
-    }
-
-    // API Cal For User Accounts
-    async function getUserAccounts() {
-      const userAccounts = await makeApiRequest("business/users/all", "get")
-      setUserAccounts(userAccounts)
-    }
-
-    // API Call For Payment Categories
-    async function getPaymentCategories() {
-      const paymentCategories = await makeApiRequest(
-        "business/payment-categories/all",
-        "get"
-      )
-      setPaymentCategories(paymentCategories)
-    }
-
-    // API Call For Transaction Statuses
-    async function getTransactionStatuses() {
-      const transactionStatuses = await makeApiRequest(
-        "business/payment-status/all",
-        "get"
-      )
-      setTransactionStatuses(transactionStatuses)
-    }
-
     // Execute All ASYNC Functions
     getLoggedInUserInfo()
     getBusinessUserRoles()
@@ -135,9 +134,19 @@ export const AllRoutes = () => {
         transactionStatuses,
         loggedInUser,
         businessUserRoles,
+
+        // API Functions
+        getLoggedInUserInfo,
+        getBusinessUserRoles,
+        getBusinessInfo,
+        getSavedBankAccounts,
+        getRecentTransactions,
+        getUserAccounts,
+        getMonthTransactions,
+        getPaymentCategories,
+        getTransactionStatuses,
       }}>
-      <ModalContext.Provider value={{ modalBody, setModalBody }}>
-        {/* {loggedInUser && console.log(loggedInUser)} */}
+      <UserFormContext.Provider value={{}}>
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<App />} />
           <Route path="dashboard" element={<App />} />
@@ -148,8 +157,9 @@ export const AllRoutes = () => {
           <Route path="users/:action" element={<Users />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/help" element={<Help />} />
+          {/* <Route path="/test" element={<Modal />} /> */}
         </Routes>
-      </ModalContext.Provider>
+      </UserFormContext.Provider>
     </ApiDataContext.Provider>
   )
 }

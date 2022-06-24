@@ -9,20 +9,28 @@ import "./Manage.css"
 export default function Manage() {
   const { userAccounts } = useContext(ApiDataContext)
   const [modalTitle, setModalTitle] = useState("Edit User")
-  const [modalBody, setModalBody] = useState("...")
-  let editForm
+  const [modalBody, setModalBody] = useState(retrievingPlaceholder)
+  const [cancelBtnText, setCancelBtnText] = useState("Cancel")
+  const [saveBtnText, setSaveBtnText] = useState("Save")
+  const [showModalFooter, setShowModalFooter] = useState(false)
 
   return (
     <>
       <SectionHeader text={"Manage Users"} />
-      <Modal title={modalTitle} body={modalBody} />
+      <Modal
+        title={modalTitle}
+        body={modalBody}
+        cancelBtnText={cancelBtnText}
+        saveBtnText={saveBtnText}
+        showFooter={showModalFooter}
+        showCloseIcon={false}
+      />
       <div
         id="manage-categories"
         className="container-fluid flat-card-style p-5 overflow-auto scrollbar">
         <div className="row d-flex flex-column g-5 align-items-center justify-content-center">
           {userAccounts
             ? userAccounts.map((user, index) => {
-                editForm = <form></form>
                 return (
                   <div
                     key={index}
@@ -51,17 +59,19 @@ export default function Manage() {
                     <div className="d-flex justify-content-center align-items-center ">
                       <div
                         className="m-2 btn d-flex flex-column justify-content-center align-items-center zoomIn action-buttons rounded p-2"
+                        style={{ display: "relative" }}
                         role={"button"}
                         data-mdb-toggle="modal"
-                        data-mdb-target="#exampleModal"
+                        data-mdb-target={"#exampleModal"}
                         onClick={() => {
                           setModalTitle("Edit User")
                           setModalBody(
                             <Form
-                              wide={1}
-                              buttonTitle="Update User"
                               data={user}
+                              formTitle={"Edit User"}
                               mode="update"
+                              iconName="update"
+                              buttonTitle="Update User"
                             />
                           )
                         }}>
@@ -78,9 +88,25 @@ export default function Manage() {
                         data-mdb-target="#exampleModal"
                         onClick={() => {
                           setModalTitle("Delete User")
-                          setModalBody("Delete" + user.first_name)
+                          setSaveBtnText("Delete")
+                          setShowModalFooter(true)
+                          setModalBody(
+                            <span className="d-flex justify-content-center align-items-center">
+                              <Icon style={{ color: "var(--danger-color)" }}>
+                                error
+                              </Icon>
+                              <span
+                                className="ms-2 fs-5"
+                                style={{ color: "var(--primary-color)" }}>
+                                Are You Sure You Want To Delete (
+                                {user.first_name + " " + user.last_name})?
+                              </span>
+                            </span>
+                          )
                         }}>
-                        <Icon style={{ color: "#A95C68" }}>delete</Icon>
+                        <Icon style={{ color: "var(--danger-color)" }}>
+                          delete
+                        </Icon>
                         <span className="text-light m-2" role={"button"}>
                           Delete
                         </span>
