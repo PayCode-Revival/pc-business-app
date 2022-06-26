@@ -29,7 +29,7 @@ export const AllRoutes = () => {
   const [paymentCategories, setPaymentCategories] = useState(null)
   const [transactionStatuses, setTransactionStatuses] = useState(null)
   const [loggedInUser, setLoggedInUser] = useState(null)
-  const [businessUserRoles, setBusinessUserRoles] = useState(null)
+  const [allTransactions, setAllTransactions] = useState(null)
 
   const updateWalletBalance = (value) => {
     setWalletBalance(currency(value))
@@ -42,12 +42,6 @@ export const AllRoutes = () => {
       "get"
     )
     setLoggedInUser(loggedInUserInfo)
-  }
-
-  // API Call For Business User Roles
-  async function getBusinessUserRoles() {
-    const roles = await makeApiRequest("business/user-roles/all", "get")
-    setBusinessUserRoles(roles)
   }
 
   // API Call For Business Info
@@ -108,10 +102,15 @@ export const AllRoutes = () => {
     setTransactionStatuses(transactionStatuses)
   }
 
+  // API Call For All Transactions
+  async function getAllTransactions() {
+    const allTransactions = await makeApiRequest("transactions/all", "get")
+    setAllTransactions(allTransactions)
+  }
+
   useEffect(() => {
     // Execute All ASYNC Functions
     getLoggedInUserInfo()
-    getBusinessUserRoles()
     getBusinessInfo()
     getSavedBankAccounts()
     getRecentTransactions()
@@ -119,11 +118,13 @@ export const AllRoutes = () => {
     getMonthTransactions()
     getPaymentCategories()
     getTransactionStatuses()
+    getAllTransactions()
   }, [])
 
   return (
     <ApiDataContext.Provider
       value={{
+        // Data
         businessInfo,
         walletBalance,
         savedBankAccounts,
@@ -133,11 +134,10 @@ export const AllRoutes = () => {
         paymentCategories,
         transactionStatuses,
         loggedInUser,
-        businessUserRoles,
+        allTransactions,
 
         // API Functions
         getLoggedInUserInfo,
-        getBusinessUserRoles,
         getBusinessInfo,
         getSavedBankAccounts,
         getRecentTransactions,
@@ -145,6 +145,7 @@ export const AllRoutes = () => {
         getMonthTransactions,
         getPaymentCategories,
         getTransactionStatuses,
+        getAllTransactions,
       }}>
       <UserFormContext.Provider value={{}}>
         <Routes location={location} key={location.pathname}>

@@ -7,18 +7,18 @@ import {
 import Toast from "../../components/Toast/Toast"
 import { api } from "../../statics/api"
 import { useEffect } from "react"
-import { useNavigate } from "react-router-dom"
 import { ApiDataContext } from "../../contexts/ApiDataContext"
 
 export default function UpdateForm({ data }) {
-  const { getPaymentCategories } = useContext(ApiDataContext)
-  const [categoryTitle, setCategoryTitle] = useState("")
-  const [categoryColor, setCategoryColor] = useState("#000000")
+  const { getPaymentCategories, savedBankAccounts } = useContext(ApiDataContext)
+  const [categoryTitle, setCategoryTitle] = useState(null)
+  const [categoryColor, setCategoryColor] = useState(null)
   const [paymentAmountType, setPaymentAmountType] = useState(null)
   const [fixedAmount, setFixedAmount] = useState(0)
   const [minAmount, setMinAmount] = useState(0)
   const [maxAmount, setMaxAmount] = useState(0)
-  const [description, setDescription] = useState("")
+  const [defaultAccount, setDefaultAccount] = useState(null)
+  const [description, setDescription] = useState(null)
   const [showBtn, setShowBtn] = useState(true)
   const [toastOpen, setToastOpen] = useState(false)
   const [showStatus, setShowStatus] = useState(true)
@@ -34,6 +34,7 @@ export default function UpdateForm({ data }) {
   const maxAmountRef = useRef()
   const descriptionRef = useRef()
   const submitButtonRef = useRef()
+  const defaultAccountRef = useRef()
 
   function handleModalClose(e) {
     setCategoryTitle(null)
@@ -42,6 +43,7 @@ export default function UpdateForm({ data }) {
     setFixedAmount(null)
     setMinAmount(null)
     setMaxAmount(null)
+    setDefaultAccount(null)
     setDescription(null)
     setCategoryColor(null)
   }
@@ -58,6 +60,9 @@ export default function UpdateForm({ data }) {
           amount: fixedAmount ? parseFloat(fixedAmount) : data.amount,
           min_amount: minAmount ? parseFloat(minAmount) : data.min_amount,
           max_amount: maxAmount ? parseFloat(maxAmount) : data.max_amount,
+          default_account: defaultAccount
+            ? defaultAccount
+            : data.default_account,
           description: description ? description : data.description,
         }
       )
@@ -78,7 +83,6 @@ export default function UpdateForm({ data }) {
       setShowStatus(true)
       setStatusMessage(err.message)
     }
-    submitButtonRef.current.disabled = false
   }
 
   function checkFormDataChange() {
@@ -89,6 +93,7 @@ export default function UpdateForm({ data }) {
       fixedAmountRef,
       minAmountRef,
       maxAmountRef,
+      defaultAccountRef,
       descriptionRef,
     ]
     const arr2 = [
@@ -98,6 +103,7 @@ export default function UpdateForm({ data }) {
       data.amount,
       data.min_amount,
       data.max_amount,
+      data.default_account,
       data.description,
     ]
 
@@ -132,7 +138,7 @@ export default function UpdateForm({ data }) {
         style={{
           position: "sticky",
           float: "right",
-          marginTop: "-11%",
+          marginTop: "-10%",
           right: "17%",
         }}>
         <button
@@ -190,11 +196,7 @@ export default function UpdateForm({ data }) {
             <div className="cp_wrapper">
               <input
                 type="color"
-                value={
-                  categoryColor
-                    ? categoryColor
-                    : capitalizeFirsts(data.color.toUpperCase())
-                }
+                value={categoryColor ? categoryColor : data.color.toUpperCase()}
                 onChange={(e) => setCategoryColor(e.target.value)}
                 ref={categoryColorRef}
               />
@@ -205,12 +207,9 @@ export default function UpdateForm({ data }) {
             placeholder="Category Color"
             aria-label="Category Color"
             aria-describedby="basic-addon1"
-            value={
-              categoryColor
-                ? categoryColor
-                : capitalizeFirsts(data.color.toUpperCase())
+            defaultValue={
+              categoryColor ? categoryColor : data.color.toUpperCase()
             }
-            onChange={(e) => setCategoryColor(e.target.value)}
             readOnly
             style={{
               backgroundColor: "var(--secondary-color)",
@@ -287,6 +286,34 @@ export default function UpdateForm({ data }) {
             </div>
           </div>
         )}
+
+        {/* Default Account */}
+        <div className="input-group mt-5 flex-column justify-content-between">
+          <div className="form-floating w-100">
+            <select
+              ref={defaultAccountRef}
+              className="form-select flat-card-style"
+              value={defaultAccount ? defaultAccount : data.default_account}
+              onChange={(e) => {
+                setDefaultAccount(e.target.value)
+              }}
+              required>
+              <option value={"wallet"}>Wallet</option>
+              {savedBankAccounts &&
+                savedBankAccounts.map(
+                  (account, index) =>
+                    account.active && (
+                      <option key={index} value={account.id}>
+                        {capitalizeFirsts(
+                          `${account.bank_name} - ${account.account_name} - ${account.account_number}`.toLocaleLowerCase()
+                        )}
+                      </option>
+                    )
+                )}
+            </select>
+            <label>Default Account</label>
+          </div>
+        </div>
 
         {/* Description*/}
         <div className="form-floating mt-5 fadeIn w-100 flat-card-style">

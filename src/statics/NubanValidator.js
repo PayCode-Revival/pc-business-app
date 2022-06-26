@@ -149,20 +149,20 @@ export class Nuban {
     }
 
     static evaluateNuban(accountNumber, bankCode) {
-
-        let j = 0
         let output = 0
-        let toAdd
-        for (let i = 0; i < ACCOUNT_NUMBER_LENGTH + BANK_CODE_LENGTH; i++) {
-            toAdd = i < BANK_CODE_LENGTH ? bankCode[i] : accountNumber[j]
-            output += (toAdd ? toAdd : 0) * (NUBAN_KEY[i] ? NUBAN_KEY[i] : 0)
-            toAdd === accountNumber[j] && j++
+        for (let i = 0; i < BANK_CODE_LENGTH; i++) {
+            output += bankCode[i] * NUBAN_KEY[i]
+        }
+        for (let i = 0; i < ACCOUNT_NUMBER_LENGTH; i++) {
+            output += accountNumber[i] * (NUBAN_KEY[BANK_CODE_LENGTH + i] ? NUBAN_KEY[BANK_CODE_LENGTH + i] : 0)
         }
         return output
     }
 
     static nubanFormula(accountNumberLastDigit, nubanCode) {
-        return 10 - (nubanCode % 10) == accountNumberLastDigit
+        let result = 10 - (nubanCode % 10)
+        result = result < 10 ? result : 0
+        return accountNumberLastDigit == result
     }
 
     static possibleBanks(accountNumber) {

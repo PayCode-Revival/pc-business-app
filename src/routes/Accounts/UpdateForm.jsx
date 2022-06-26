@@ -135,7 +135,7 @@ export default function UpdateForm({ data }) {
         style={{
           position: "sticky",
           float: "right",
-          marginTop: "-11%",
+          marginTop: "-10%",
           right: "17%",
         }}>
         <button

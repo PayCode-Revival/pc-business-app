@@ -2,16 +2,17 @@ import React, { useState, useEffect, useContext } from "react"
 import { FlatCard } from "../FlatCard/FlatCard"
 import { SectionHeader } from "../SectionHeader/SectionHeader"
 import "./Main.css"
-import { RenderChart } from "./../../statics/chartData"
-import { currency, retrievingPlaceholder } from "./../../statics/allFunctions"
+import RenderChart from "../RenderChart/RenderChart"
+import {
+  currency,
+  retrievingPlaceholder,
+  generateLabels,
+  CHART_STYLES,
+} from "./../../statics/allFunctions"
 import { ApiDataContext } from "../../contexts/ApiDataContext"
 import TransactionsHistory from "../TransactionsHistory/TransactionsHistory"
 
 const Main = ({}) => {
-  // ######################################## UseEffects Start ########################################
-
-  // ######################################## UseEffects End ########################################
-
   const {
     walletBalance,
     savedBankAccounts,
@@ -25,12 +26,13 @@ const Main = ({}) => {
   if (recentTransactions) {
     let i = 0
     totalTransVal = 0
-    while (
-      new Date().toLocaleDateString() ===
-      new Date(recentTransactions[i].created_at).toLocaleDateString()
-    ) {
-      totalTransVal += parseFloat(recentTransactions[i].amount)
-      i++
+    for (let i = 0; i < recentTransactions.length; i++) {
+      if (
+        new Date().toLocaleDateString() ===
+        new Date(recentTransactions[i].created_at).toLocaleDateString()
+      ) {
+        totalTransVal += parseFloat(recentTransactions[i].amount)
+      }
     }
     totalTransVal = currency(totalTransVal)
   } else {
@@ -48,6 +50,22 @@ const Main = ({}) => {
   } else {
     monthTotal = retrievingPlaceholder
   }
+
+  const chartData = recentTransactions
+    ? {
+        labels: generateLabels(7),
+        datasets: [
+          {
+            label: "Day",
+            data: recentTransactions.map((data) => data.amount),
+            ...CHART_STYLES,
+          },
+        ],
+      }
+    : {
+        label: [],
+        datasets: [],
+      }
 
   return (
     <div
@@ -129,13 +147,13 @@ const Main = ({}) => {
         <div className="row g-3 pb-3 mt-1 flex-nowrap overflow-auto scrollbar">
           <div className="col col-8 ">
             <div className="p-3 flat-card-style">
-              <RenderChart type="bar" />
+              <RenderChart type="bar" data={chartData} />
             </div>
           </div>
 
           <div className="col col-4">
             <div className="p-3 flat-card-style">
-              <RenderChart type="pie" />
+              <RenderChart type="pie" data={chartData} />
             </div>
           </div>
         </div>

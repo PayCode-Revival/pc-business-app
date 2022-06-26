@@ -9,8 +9,11 @@ import { api } from "../../statics/api"
 import { useEffect } from "react"
 import Toast from "../../components/Toast/Toast"
 import { useNavigate } from "react-router-dom"
+import { useContext } from "react"
+import { ApiDataContext } from "../../contexts/ApiDataContext"
 
 export default function Form() {
+  const { getSavedBankAccounts } = useContext(ApiDataContext)
   const allBanks = Nuban.allBankNames()
 
   const [bankName, setBankName] = useState(allBanks[0])
@@ -38,6 +41,7 @@ export default function Form() {
           submitAccountInfo.status == 200 ||
           submitAccountInfo.status == 201
         ) {
+          getSavedBankAccounts()
           setBankName(allBanks[0])
           setAccountNumber(null)
           setAccountName(null)
@@ -156,7 +160,7 @@ export default function Form() {
             minLength={ACCOUNT_NUMBER_LENGTH}
             maxLength={ACCOUNT_NUMBER_LENGTH}
             onInput={(e) => {
-              setAccountNumber(e.target.value)
+              setAccountNumber(e.target.value.toString())
             }}
             required
             autoFocus

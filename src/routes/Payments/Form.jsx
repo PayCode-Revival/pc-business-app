@@ -8,14 +8,17 @@ import {
 import { SectionHeader } from "../../components/SectionHeader/SectionHeader"
 import Toast from "../../components/Toast/Toast"
 import { api } from "../../statics/api"
+import { ApiDataContext } from "../../contexts/ApiDataContext"
 
 export default function Form() {
+  const { getPaymentCategories, savedBankAccounts } = useContext(ApiDataContext)
   const [categoryTitle, setCategoryTitle] = useState("")
   const [categoryColor, setCategoryColor] = useState("#000000")
   const [paymentAmountType, setPaymentAmountType] = useState("None")
   const [fixedAmount, setFixedAmount] = useState(0)
   const [minAmount, setMinAmount] = useState(0)
   const [maxAmount, setMaxAmount] = useState(0)
+  const [defaultAccount, setDefaultAccount] = useState("Wallet")
   const [showBtn, setShowBtn] = useState(true)
   const [toastOpen, setToastOpen] = useState(false)
   const [showStatus, setShowStatus] = useState(true)
@@ -24,6 +27,7 @@ export default function Form() {
   const [description, setDescription] = useState("")
 
   async function handleFormSubmit() {
+    console.log(defaultAccount)
     setShowBtn(false)
     try {
       const addPaymentCategoryRequest = await api.post(
@@ -35,6 +39,7 @@ export default function Form() {
           amount: parseFloat(fixedAmount),
           min_amount: parseFloat(minAmount),
           max_amount: parseFloat(maxAmount),
+          default_account: defaultAccount,
           description: description,
         }
       )
@@ -52,9 +57,12 @@ export default function Form() {
           setMinAmount(0)
           setMaxAmount(0)
           setDescription("")
+          setDefaultAccount("Wallet")
+          getPaymentCategories()
         }, 1500)
       }
     } catch (err) {
+      console.log(err.response)
       setStatusCode(0)
       setShowStatus(true)
       setStatusMessage(err.message)
@@ -201,6 +209,33 @@ export default function Form() {
             </div>
           </div>
         )}
+
+        {/* Default Account */}
+        <div className="input-group mt-5 flex-column justify-content-between">
+          <div className="form-floating w-100">
+            <select
+              className="form-select flat-card-style"
+              value={defaultAccount}
+              onChange={(e) => {
+                setDefaultAccount(e.target.value)
+              }}
+              required>
+              <option>Wallet</option>
+              {savedBankAccounts &&
+                savedBankAccounts.map(
+                  (account, index) =>
+                    account.active && (
+                      <option key={index} value={account.id}>
+                        {capitalizeFirsts(
+                          `${account.bank_name} - ${account.account_name} - ${account.account_number}`.toLocaleLowerCase()
+                        )}
+                      </option>
+                    )
+                )}
+            </select>
+            <label>Default Account</label>
+          </div>
+        </div>
 
         {/* Description*/}
         <div className="form-floating mt-5 fadeIn w-100 flat-card-style">

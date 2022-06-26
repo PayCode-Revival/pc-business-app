@@ -81,7 +81,7 @@ export default function NavBarAlt({
                   return (
                     <span
                       key={index}
-                      className={`sub-menu ms-5 p-2 m-2`}
+                      className={`sub-menu ms-5 p-2 m-2 text-nowrap`}
                       role={"button"}
                       onClick={() => setActiveNav(navItem.title)}>
                       <Link

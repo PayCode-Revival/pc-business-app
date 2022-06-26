@@ -1,11 +1,7 @@
 // Components
 import React, { useContext } from "react"
 import { Icon } from "@mui/material"
-import {
-  greeting,
-  retrievingPlaceholder,
-  getBusinessUserRoleName,
-} from "../../statics/allFunctions"
+import { greeting, retrievingPlaceholder } from "../../statics/allFunctions"
 import { ApiDataContext } from "../../contexts/ApiDataContext"
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -103,12 +99,10 @@ export default function Header({ sideBarToggleFunc, currentState }) {
                   textUnderlineOffset: "0.25em",
                   color: "var(--cruise-color)",
                 }}>
-                {businessUserRoles && userInfo.business_role}
+                {userInfo.business_role}
               </u>
               <span className="badge bg-primary ms-1 text-uppercase">
-                {businessUserRoles &&
-                  businessUserRoles &&
-                  getBusinessUserRoleName(userInfo.role, businessUserRoles)}
+                {userInfo.role}
               </span>
             </span>
           </div>

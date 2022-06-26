@@ -29,7 +29,6 @@ function createWindow() {
         frame: false,
         fullscreenable: true,
         resizable: true,
-        // fullscreen: true
 
     });
 
@@ -39,8 +38,14 @@ function createWindow() {
     // Open the DevTools.
     // mainWindow.webContents.openDevTools();
 
+    // Clear Cache
+    mainWindow.webContents.session.clearStorageData()
+    mainWindow.webContents.session.clearCache()
+
+
+
     // Emitted when the window is closed.
-    mainWindow.on('closed', function() {
+    mainWindow.on('closed', function () {
         mainWindow = null
     })
 }
@@ -48,13 +53,13 @@ function createWindow() {
 app.on('ready', createWindow);
 
 // Quit when all windows are closed.
-app.on('window-all-closed', function() {
+app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') {
         app.quit()
     }
 });
 
-app.on('activate', function() {
+app.on('activate', function () {
     if (mainWindow === null) {
         createWindow()
     }

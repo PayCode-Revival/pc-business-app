@@ -8,18 +8,16 @@ export default function Modal({
   body = retrievingPlaceholder,
   cancelBtnText = "Cancel",
   saveBtnText = "Save",
-  showFooter = true,
-  showCloseIcon = true,
+  showFooter = false,
+  showCloseIcon = false,
   saveBtnOnClickFunc = () => {},
-  toastFunc = () => {},
-  refreshOnClose = true,
-  navigateAfterClose = false,
+  closeBtnFunc = () => {},
 }) {
   const navigate = useNavigate()
 
   return (
     <div
-      className="modal top m-5 p-5 fade fadeIn"
+      className="modal top m-5 p-2 fade fadeIn"
       id={"exampleModal"}
       tabIndex="-1"
       aria-labelledby="exampleModalLabel"
@@ -28,23 +26,27 @@ export default function Modal({
       data-mdb-keyboard="false">
       <div className="modal-dialog modal-dialog-centered modal-lg">
         <div className="modal-content">
-          <div className="modal-header">
+          <div className="modal-header flat-card-style">
             <h5 className="modal-title" id="exampleModalLabel">
               {title}
             </h5>
             {showCloseIcon && (
               <button
                 type="button"
-                className="btn-close"
+                className="btn btn-danger"
                 data-mdb-dismiss="modal"
-                aria-label="Close"
-                style={{ backgroundColor: "var(--primary-color)" }}></button>
+                aria-label="Close">
+                Close
+              </button>
             )}
           </div>
-          <div className="modal-body p-3"> {body}</div>
+          <div className="modal-body p-2"> {body}</div>
           {showFooter && (
             <div className="modal-footer">
               <button
+                onClick={() => {
+                  closeBtnFunc()
+                }}
                 type="button"
                 className="btn btn-danger"
                 data-mdb-dismiss="modal">
@@ -56,17 +58,6 @@ export default function Modal({
                 data-mdb-dismiss="modal"
                 onClick={() => {
                   saveBtnOnClickFunc()
-                  toastFunc(true)
-                  refreshOnClose &&
-                    setTimeout(() => {
-                      navigate("./")
-                      toastFunc(false)
-                    }, 1000)
-                  navigateAfterClose &&
-                    setTimeout(() => {
-                      navigate(navigateAfterClose)
-                      toastFunc(false)
-                    }, 1000)
                 }}>
                 {saveBtnText}
               </button>

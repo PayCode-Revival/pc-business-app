@@ -17,39 +17,78 @@ export default function Manage() {
   const { savedBankAccounts, getSavedBankAccounts } = useContext(ApiDataContext)
   const [modalTitle, setModalTitle] = useState("Edit Account")
   const [modalBody, setModalBody] = useState(retrievingPlaceholder)
-  const [cancelBtnText, setCancelBtnText] = useState("Cancel")
-  const [saveBtnText, setSaveBtnText] = useState("Save")
-  const [showModalFooter, setShowModalFooter] = useState(false)
   const [toastOpen, setToastOpen] = useState(false)
-  const [navigateAfterClose, setNavigateAfterClose] = useState(false)
+  const [toastSeverity, setToastSeverity] = useState(null)
+  const [toastMessage, setToastMessage] = useState("")
 
-  function toggleToast(state) {
-    setToastOpen(state ? state : !toastOpen)
-  }
-
-  async function handleSaveBtn(accountNumber) {
+  async function deleteAccount(accountID) {
     // API Call To Delete Account
     try {
       const deleteAccountRequest = await api.post(
-        `business/bank-accounts/delete/${accountNumber}`
+        `business/bank-accounts/delete/${accountID}`
       )
-    } catch (err) {}
+
+      if (
+        deleteAccountRequest.status == "200" ||
+        deleteAccountRequest.status == "201"
+      ) {
+        setToastMessage("Bank Account Deleted Successfully")
+        setToastSeverity("success")
+        setToastOpen(true)
+        setTimeout(() => {
+          setToastOpen(false)
+          getSavedBankAccounts()
+        }, 1500)
+      }
+    } catch (err) {
+      setToastOpen(false)
+      setToastSeverity("error")
+      setToastMessage(err.message)
+    }
   }
 
-  useEffect(() => {
-    async function requestSavedBankAccounts() {
-      await getSavedBankAccounts()
+  async function toggleAccountState(accountID, state) {
+    // API Call To Toggle Account
+    try {
+      const toggleAccountStateRequest = await api.post(
+        `business/bank-accounts/toggle/${accountID}?state=${state}`
+      )
+
+      if (
+        toggleAccountStateRequest.status == "200" ||
+        toggleAccountStateRequest.status == "201"
+      ) {
+        setToastMessage("Bank Account State Updated Successfully")
+        setToastSeverity("success")
+        setToastOpen(true)
+        setTimeout(() => {
+          setToastOpen(false)
+          getSavedBankAccounts()
+        }, 1500)
+      }
+    } catch (err) {
+      console.log(err.response)
+      setToastOpen(true)
+      setToastSeverity("error")
+      setToastMessage(err.message)
     }
-    requestSavedBankAccounts()
-  }, [])
+  }
 
   return (
     <>
       <Toast
         state={toastOpen}
-        severity="error"
-        message="Account Deleted Successfully"
+        severity={toastSeverity}
+        message={toastMessage}
       />
+
+      <Modal
+        title={modalTitle}
+        body={modalBody}
+        showFooter={false}
+        showCloseIcon={false}
+      />
+
       <SectionHeader text={"Manage Saved Accounts"} />
       <div
         id="manage-accounts"
@@ -64,24 +103,20 @@ export default function Manage() {
                   : "green"
                 return (
                   <span key={index} className="d-flex justify-content-center">
-                    <Modal
-                      title={modalTitle}
-                      body={modalBody}
-                      cancelBtnText={cancelBtnText}
-                      saveBtnText={saveBtnText}
-                      showFooter={showModalFooter}
-                      showCloseIcon={false}
-                      saveBtnOnClickFunc={() => handleSaveBtn(account.id)}
-                      toastFunc={toggleToast}
-                    />
                     <div
                       className="col col-10 p-3 rounded secondary-flat d-flex justify-content-between align-items-center rounded zoomIn"
                       role={"button"}>
                       <div className="d-flex flex-column" role={"button"}>
-                        <span className="fw-bolder h5">
+                        <span className="fw-bolder text text-nowrap fs-4">
                           {capitalizeFirsts(account.account_name.toLowerCase())}
                         </span>
-                        <span className="text-light">
+                        <div className="divider"></div>
+                        <span
+                          className="text"
+                          style={{
+                            color: "var(--primary-color",
+                            fontSize: "0.9vw",
+                          }}>
                           {capitalizeFirsts(account.bank_name.toLowerCase())} |{" "}
                           {account.account_number} |{" "}
                           {
@@ -91,10 +126,20 @@ export default function Manage() {
                               }`}>
                               {account.active ? "ACTIVE" : "INACTIVE"}
                             </span>
+                          }{" "}
+                          |{" "}
+                          {
+                            <span
+                              className={`badge ${
+                                account.verfied ? "bg-success" : "bg-danger"
+                              }`}>
+                              {account.verfied ? "VERIFIED" : "UNVERIFIED"}
+                            </span>
                           }
                         </span>
                       </div>
                       <div className="d-flex justify-content-center align-items-center">
+                        {/* Edit Button */}
                         <div
                           className="m-2 d-flex flex-column justify-content-center align-items-center zoomIn action-buttons rounded p-2 btn flat-card-style"
                           role={"button"}
@@ -103,74 +148,118 @@ export default function Manage() {
                           onClick={() => {
                             setModalTitle("Edit Account")
                             setModalBody(<UpdateForm data={account} />)
-                            setShowModalFooter(false)
                           }}>
                           <Icon style={{ color: "var(--primary-color" }}>
                             edit
                           </Icon>
-                          <span className="text-light m-2" role={"button"}>
+                          <span className="text m-2" role={"button"}>
                             Edit
                           </span>
                         </div>
+
+                        {/* Delete Button */}
                         <div
                           className="m-2 d-flex flex-column justify-content-center align-items-center zoomIn action-buttons rounded p-2 btn flat-card-style"
                           data-mdb-toggle="modal"
                           data-mdb-target="#exampleModal"
                           onClick={() => {
                             setModalTitle("Delete Bank Account")
-                            setSaveBtnText("Delete")
-                            setShowModalFooter(true)
+
                             setModalBody(
-                              <span className="d-flex justify-content-center align-items-center">
-                                <Icon style={{ color: "var(--danger-color)" }}>
-                                  error
-                                </Icon>
-                                <span
-                                  className="ms-2 fs-5"
-                                  style={{ color: "var(--primary-color)" }}>
-                                  Are You Sure You Want To Delete (
-                                  {account.account_name}
-                                  )?
+                              <>
+                                <span className="d-flex flex-column justify-content-center align-items-center p-4 ">
+                                  <Icon
+                                    style={{ color: "var(--danger-color)" }}>
+                                    error
+                                  </Icon>
+                                  <span className="ms-2 fs-6 fw-bolder align-self-end me-5">
+                                    Are You Sure You Want To Delete (
+                                    {account.account_name}
+                                    )?
+                                  </span>
+                                  <div className="d-flex align-self-end me-5">
+                                    <button
+                                      className="btn btn-danger mt-3"
+                                      data-mdb-dismiss="modal">
+                                      Cancel
+                                    </button>
+
+                                    <button
+                                      data-mdb-dismiss="modal"
+                                      className="btn btn-primary mt-3 ms-3"
+                                      onClick={() => {
+                                        deleteAccount(account.id)
+                                      }}>
+                                      Delete
+                                    </button>
+                                  </div>
                                 </span>
-                              </span>
+                              </>
                             )
-                            setNavigateAfterClose("./")
                           }}>
                           <Icon style={{ color: "var(--danger-color)" }}>
                             delete
                           </Icon>
-                          <span className="text-light m-2" role={"button"}>
+                          <span className="text m-2" role={"button"}>
                             Delete
                           </span>
                         </div>
 
+                        {/* Activate/Deactivate Button */}
                         <div
                           className="m-2 d-flex flex-column justify-content-center align-items-center zoomIn action-buttons rounded p-2 btn flat-card-style"
                           data-mdb-toggle="modal"
                           data-mdb-target="#exampleModal"
                           onClick={() => {
-                            setModalTitle("Delete Payment Category")
-                            setSaveBtnText("Delete")
-                            setShowModalFooter(true)
+                            setModalTitle(
+                              account.active
+                                ? "Deactivate"
+                                : " Activate" + " Bank Account"
+                            )
+
                             setModalBody(
-                              <span className="d-flex justify-content-center align-items-center">
-                                <Icon style={{ color: toggleActivationColor }}>
-                                  {account.active ? "cancel" : "check"}
-                                </Icon>
-                                <span className="ms-2 fs-5 fw-bolder">
-                                  Are You Sure You Want To{" "}
-                                  {account.active
-                                    ? " Deactivate "
-                                    : " Activate "}
-                                  ({account.account_name})?
+                              <span className="d-flex flex-column justify-content-center align-items-center p-4 ">
+                                <span className="ms-2 fs-6 fw-bolder align-self-end me-5 d-flex align-items-center fadeIn">
+                                  <Icon
+                                    style={{ color: toggleActivationColor }}>
+                                    {account.active ? "cancel" : "check"}
+                                  </Icon>
+                                  <span className="fadeIn">
+                                    Are You Sure You Want To{" "}
+                                    {account.active
+                                      ? " Deactivate "
+                                      : " Activate "}
+                                    ({account.account_name})?
+                                  </span>
                                 </span>
+                                <div className="d-flex align-self-end me-5">
+                                  <button
+                                    className="btn btn-danger mt-3"
+                                    data-mdb-dismiss="modal">
+                                    Cancel
+                                  </button>
+
+                                  <button
+                                    data-mdb-dismiss="modal"
+                                    className="btn btn-primary mt-3 ms-3"
+                                    onClick={() => {
+                                      toggleAccountState(
+                                        account.id,
+                                        account.active
+                                      )
+                                    }}>
+                                    {account.active
+                                      ? " Deactivate "
+                                      : " Activate "}
+                                  </button>
+                                </div>
                               </span>
                             )
                           }}>
                           <Icon style={{ color: toggleActivationColor }}>
                             {account.active ? "cancel" : "check"}
                           </Icon>
-                          <span className="text-light m-2" role={"button"}>
+                          <span className="text m-2" role={"button"}>
                             {account.active ? "Deactivate" : "Activate"}
                           </span>
                         </div>

@@ -1,92 +1,93 @@
-import { useEffect } from "react"
+import {} from "react"
 import { Icon } from "@mui/material"
 import { useContext, useState } from "react"
 import { SectionHeader } from "../../../components/SectionHeader/SectionHeader"
 import { ApiDataContext } from "../../../contexts/ApiDataContext"
 import {
+  capitalizeFirstLetter,
+  capitalizeFirsts,
   currency,
-  localeStringHelper,
   retrievingPlaceholder,
 } from "../../../statics/allFunctions"
 import Modal from "../../../components/Modal/Modal"
 import "./Manage.css"
 import UpdateForm from "../UpdateForm"
+import Toast from "../../../components/Toast/Toast"
+import { api } from "../../../statics/api"
 
 export default function Manage() {
-  let { paymentCategories, getPaymentCategories } = useContext(ApiDataContext)
+  let { paymentCategories, getPaymentCategories, savedBankAccounts } =
+    useContext(ApiDataContext)
 
-  useEffect(() => {
-    getPaymentCategories()
-  }, [])
-
-  // Parse Payment Categories
-  if (paymentCategories) {
-    paymentCategories = paymentCategories.map((category) => {
-      return {
-        id: category.id,
-        color: category.color,
-        title: category.title,
-        amount: category.amount,
-        type: category.type,
-        min_amount: category.min_amount,
-        max_amount: category.max_amount,
-        description: category.description,
-        created_at: localeStringHelper(category.created_at, 1),
-        updated_at: localeStringHelper(category.updated_at, 1),
-      }
-    })
-  }
-
-  function processSubCategory(category) {
-    const excludedOutputs = [
-      "id",
-      "title",
-      "color",
-      "created_at",
-      "updated_at",
-      "type",
-    ]
-    const objectKeys = Object.keys(category)
-    const objectValues = Object.values(category)
-    let output = ``
-    for (let i = 0; i < objectValues.length; i++) {
-      // Parse Output
-      if (objectValues[i] && !excludedOutputs.includes(objectKeys[i])) {
-        output += !isNaN(objectValues[i])
-          ? currency(objectValues[i])
-          : objectValues[i]
-
-        // Parse Pipe Separator
-        if (i > 0 && i < objectValues.length - 3) {
-          output += " | "
-        }
+  function getBankAccountName(id) {
+    for (let i = 0; i < savedBankAccounts.length; i++) {
+      if (id == savedBankAccounts[i].id) {
+        return (
+          savedBankAccounts[i].bank_name +
+          " - " +
+          savedBankAccounts[i].account_name
+        )
       }
     }
-    return output
+    return false
   }
 
-  const [componentState, setComponentState] = useState(null)
   const [modalTitle, setModalTitle] = useState("Edit Category")
   const [modalBody, setModalBody] = useState(retrievingPlaceholder)
   const [cancelBtnText, setCancelBtnText] = useState("Cancel")
   const [saveBtnText, setSaveBtnText] = useState("Save")
-  const [showModalFooter, setShowModalFooter] = useState(false)
+  const [toastOpen, setToastOpen] = useState(false)
+  const [toastSeverity, setToastSeverity] = useState(null)
+  const [toastMessage, setToastMessage] = useState("")
+
+  async function deletePaymentCategory(id) {
+    // console.log(paymentID)
+    try {
+      const deletePaymentCategoryRequest = await api.post(
+        "business/payment-categories/delete/" + id
+      )
+      if (
+        deletePaymentCategoryRequest.status == "200" ||
+        deletePaymentCategoryRequest.status == "201"
+      ) {
+        setToastMessage("Payment Category Deleted Successfully")
+        setToastSeverity("success")
+        setToastOpen(true)
+        setTimeout(() => {
+          setToastOpen(false)
+          getPaymentCategories()
+        }, 1500)
+      }
+    } catch (err) {
+      setToastOpen(false)
+      setToastSeverity("error")
+      setToastMessage(err.message)
+      setTimeout(() => {
+        setToastOpen(false)
+      }, 1500)
+    }
+  }
 
   return (
     <>
-      <SectionHeader text={"Manage Saved Payment Categories"} />
+      <Toast
+        state={toastOpen}
+        severity={toastSeverity}
+        message={toastMessage}
+      />
+
       <Modal
         title={modalTitle}
         body={modalBody}
         cancelBtnText={cancelBtnText}
         saveBtnText={saveBtnText}
-        showFooter={showModalFooter}
-        showCloseIcon={false}
+        saveBtnOnClickFunc={deletePaymentCategory}
       />
+
       <div
         id="manage-categories"
-        className="container-fluid flat-card-style p-5 overflow-auto scrollbar">
-        <div className="row d-flex flex-column g-5 align-items-center justify-content-center">
+        className="container-fluid flat-card-style p-5 overflow-auto scrollbar fadeIn">
+        <div className="row d-flex flex-column g-5 align-items-center justify-content-center fadeIn">
           {paymentCategories ? (
             paymentCategories.length ? (
               paymentCategories.map((category, index) => {
@@ -95,25 +96,53 @@ export default function Manage() {
                     key={index}
                     className="col col-9 p-4 rounded secondary-flat d-flex justify-content-between align-items-center rounded zoomIn btn fadeIn"
                     role={"button"}>
-                    <div className="d-flex flex-column p-3 " role={"button"}>
+                    <div className="d-flex flex-column p-3" role={"button"}>
                       <span className="fw-bolder h3 d-flex">
                         <span
                           className="p-1 me-2 rounded"
                           style={{
                             backgroundColor: `${category.color}`,
                           }}></span>
-                        <span className="text text-nowrap">
-                          {category.title}
-                        </span>
+                        <span className="text">{category.title}</span>
                       </span>
-                      <div className="divider"></div>
+                      <div className="divider mb-3"></div>
                       <span
-                        className="d-flex p-1"
+                        className="d-flex justify-content-start"
                         style={{
                           color: "var(--primary-color)",
                           fontSize: "0.75vw",
                         }}>
-                        {processSubCategory(category)}
+                        {/* Payment Type */}
+                        {category.type.toLowerCase() !== "none" &&
+                          capitalizeFirstLetter(
+                            category.type.toLowerCase() + " | "
+                          )}
+
+                        {/* Fixed Amount */}
+                        {category.type.toLowerCase() === "fixed" &&
+                          category.amount &&
+                          currency(category.amount) + " | "}
+
+                        {/* Minimum Amount */}
+                        {category.type.toLowerCase() === "range" &&
+                          category.min_amount &&
+                          currency(category.min_amount) + " | "}
+
+                        {/* Maximum Amount */}
+                        {category.type.toLowerCase() === "range" &&
+                          category.max_amount &&
+                          currency(category.max_amount) + " | "}
+
+                        {/* Default Account */}
+                        {category.default_account.toLowerCase() == "wallet"
+                          ? "Wallet | "
+                          : `${getBankAccountName(
+                              category.default_account
+                            )} | `}
+
+                        {/* Description */}
+                        {category.description &&
+                          capitalizeFirsts(category.description)}
                       </span>
                     </div>
                     <div className="d-flex justify-content-center align-items-center ">
@@ -137,7 +166,7 @@ export default function Manage() {
                         <Icon style={{ color: "var(--primary-color" }}>
                           edit
                         </Icon>
-                        <span className="text-light m-2" role={"button"}>
+                        <span className="text m-2" role={"button"}>
                           Edit
                         </span>
                       </div>
@@ -148,25 +177,47 @@ export default function Manage() {
                         onClick={() => {
                           setModalTitle("Delete Payment Category")
                           setSaveBtnText("Delete")
-                          setShowModalFooter(true)
                           setModalBody(
-                            <span className="d-flex justify-content-center align-items-center">
-                              <Icon style={{ color: "var(--danger-color)" }}>
-                                error
-                              </Icon>
-                              <span
-                                className="ms-2 fs-5"
-                                style={{ color: "var(--primary-color)" }}>
-                                Are You Sure You Want To Delete (
-                                {category.title})?
+                            <>
+                              <span className="d-flex flex-column justify-content-center align-items-center p-4">
+                                <span className="d-flex align-items-center ms-2 fs-6 fw-bolder align-self-end me-5">
+                                  <Icon
+                                    style={{ color: "var(--danger-color)" }}>
+                                    error
+                                  </Icon>
+                                  <span className="ms-2">
+                                    Are You Sure You Want To Delete (
+                                    {category.title}
+                                    )?
+                                  </span>
+                                </span>
+                                <div className="d-flex align-self-end me-5">
+                                  <button
+                                    className="btn btn-danger mt-3"
+                                    data-mdb-dismiss="modal">
+                                    Cancel
+                                  </button>
+
+                                  <button
+                                    data-mdb-dismiss="modal"
+                                    className="btn btn-primary mt-3 ms-3"
+                                    onClick={() => {
+                                      deletePaymentCategory(category.id)
+                                    }}>
+                                    Delete
+                                  </button>
+                                </div>
                               </span>
-                            </span>
+                            </>
                           )
                         }}>
                         <Icon style={{ color: "var(--danger-color)" }}>
                           delete
                         </Icon>
-                        <span className="text-light m-2" role={"button"}>
+                        <span
+                          className="text m-2"
+                          role={"button"}
+                          style={{ color: "var(--primary-color)" }}>
                           Delete
                         </span>
                       </div>

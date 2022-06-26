@@ -6,7 +6,7 @@ import { api } from "../../statics/api"
 import Toast from "../../components/Toast/Toast"
 
 export default function Form({}) {
-  const { businessUserRoles, getBusinessUsers } = useContext(ApiDataContext)
+  const { getUserAccounts } = useContext(ApiDataContext)
   const [accessLevel, setAccessLevel] = useState("Admin")
   const [businessUserRole, setBusinessUserRole] = useState("Administrator")
   const [username, setUsername] = useState("")
@@ -29,6 +29,7 @@ export default function Form({}) {
 
   async function handleFormSubmit() {
     submitButtonRef.current.disabled = true
+
     try {
       const addBusinessUserRequest = await api.post("business/users/add", {
         username: username,
@@ -55,20 +56,20 @@ export default function Form({}) {
           setBusinessUserRole("Administrator")
           setUsername("")
           setFirstName("")
-          setLastName("0")
+          setLastName("")
           setEmail("")
           setPassword("")
           setConfirmPassword("")
           setSelectedImage(false)
           setUploadInputValue(null)
-          getBusinessUsers()
+          getUserAccounts()
         }, 1500)
       }
     } catch (err) {
       console.log(err.response)
       setStatusCode(0)
       setShowStatus(true)
-      setStatusMessage(err.message)
+      setStatusMessage(err.response.data)
     }
     submitButtonRef.current.disabled = false
   }
@@ -88,6 +89,11 @@ export default function Form({}) {
 
   return (
     <>
+      <Toast
+        state={toastOpen}
+        severity="success"
+        message="User Added Successfully"
+      />
       <div className="col col-7 mx-auto">
         <form
           className={`d-flex flex-column justify-content-center align-items-center`}
@@ -123,15 +129,9 @@ export default function Form({}) {
                     onChange={(e) => {
                       setAccessLevel(e.target.value)
                     }}>
-                    {businessUserRoles &&
-                      businessUserRoles.map((role, index) => {
-                        let currentOption = capitalizeFirsts(role.title)
-                        return (
-                          <option key={index} value={currentOption}>
-                            {currentOption}
-                          </option>
-                        )
-                      })}
+                    <option>Admin</option>
+                    <option>Assistant</option>
+                    <option>Custom Role</option>
                   </select>
                   <label>User Access Level</label>
                 </div>
