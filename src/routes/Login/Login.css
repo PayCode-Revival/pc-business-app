@@ -1,0 +1,19 @@
+.login-right{
+    /* background: linear-gradient(315deg, #707070 0%, #1a1b23 100%) */
+}
+
+.custom-outline{
+    box-shadow: 13px 17px 7px -8px rgba(40,40,57,0.74);
+    -webkit-box-shadow: 13px 17px 7px -8px rgba(40,40,57,0.74);
+    -moz-box-shadow: 13px 17px 7px -8px rgba(40,40,57,0.74);
+}
+
+.custom-btn{
+    vertical-align: bottom;
+    border: 0;
+    box-shadow: 0 2px 5px 0 rgb(0 0 0 / 20%), 0 2px 10px 0 rgb(0 0 0 / 10%);
+    font-weight: 500;
+    padding: 0.625rem 1.5rem 0.5rem;
+    font-size: .75rem;
+    line-height: 1.5;
+}

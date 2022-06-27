@@ -57,11 +57,25 @@ export default function Summaries() {
   const [pieChartDuration, setPieChartDuration] = useState("7")
   const [pieChartSort, setPieChartSort] = useState("categories")
 
+  const currentDate = new Date()
+  const currentYear = currentDate.getFullYear()
+  let currentMonth = currentDate.getMonth()
+  const currentDay = currentDate.getDate()
+
+  if (currentMonth < 10) {
+    currentMonth = "0" + currentMonth
+  }
+
+  // Filters Toggle
+  const [filters, setFilters] = useState(false)
+
   // Filter Terms
   const [categoryFilter, setCategoryFilter] = useState("all")
   const [statusFilter, setStatusFilter] = useState("all")
   const [startDateFilter, setStartDateFilter] = useState(null)
-  const [endDateFilter, setEndDateFilter] = useState(null)
+  const [endDateFilter, setEndDateFilter] = useState(
+    `${currentYear}-${currentMonth}-${currentDay}`
+  )
 
   function generateChartData(days, sort, chart = "bar") {
     days = days === "all" ? allTransactions.length : days
@@ -232,11 +246,38 @@ export default function Summaries() {
 
       {/* Transactions History */}
       {/* Header */}
-      <div className="col col-5 mt-3 mx-2">
-        <SectionHeader text={"Transactions History"} />
+      <div className="col col-8 mt-3 mx-2 py-2">
+        <div className="row">
+          <div className="col col-10">
+            <SectionHeader text={"Transactions History"} />
+          </div>
+          <div className="col">
+            <div className="form-check form-switch">
+              <label
+                className="form-check-label"
+                htmlFor="flexSwitchCheckChecked">
+                Filters
+              </label>
+              <input
+                className="form-check-input"
+                type="checkbox"
+                role="switch"
+                id="flexSwitchCheckChecked"
+                onChange={(e) => {
+                  setFilters(!filters)
+                  setCategoryFilter("All")
+                  setStatusFilter("All")
+                  setStartDateFilter(null)
+                  setEndDateFilter(null)
+                }}
+              />
+            </div>
+          </div>
+        </div>
       </div>
       <div id="transactions-history" className="container-fluid mt-3 mb-5">
-        <div className="row py-2 col-8">
+        <div
+          className={`${filters ? "d-flex" : "d-none"} row py-2 col-8 fadeIn`}>
           {/* Filter By Category */}
           <div className="col col-3">
             <div className="form-floating">

@@ -53,7 +53,7 @@ export default function Settings() {
               <Icon>brightness_6</Icon>
               <span className="ms-3 fs-6">Logout</span>
             </div>
-            <div className="d-flex flex-column justify-content-start align-items-center text custom-hover">
+            <div className="d-flex flex-column justify-content-start align-items-center text">
               <span>App Version (0.0.1)</span>
               <span>
                 Update Available Latest Version (

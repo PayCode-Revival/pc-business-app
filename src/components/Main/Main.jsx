@@ -10,7 +10,7 @@ import {
   CHART_STYLES,
 } from "./../../statics/allFunctions"
 import { ApiDataContext } from "../../contexts/ApiDataContext"
-// import TransactionsHistory from "../../routes/Reports/Summaries/TransactionsHistory/TransactionsHistory"
+import TransactionsHistory from "../../routes/Reports/Summaries/TransactionsHistory/TransactionsHistory"
 
 const Main = ({}) => {
   const {
@@ -165,7 +165,7 @@ const Main = ({}) => {
         <div className="row g-3 mt-1">
           <div className="col col-6">
             <div className="p-3 flat-card-style">
-              {/* <TransactionsHistory /> */}
+              <TransactionsHistory duration="recent" />
             </div>
           </div>
 

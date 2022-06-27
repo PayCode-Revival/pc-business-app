@@ -48,13 +48,15 @@ export default function Help() {
 
               {/* Tab Headers */}
               <ul
-                class="nav nav-pills nav-fill mb-3 mt-3"
+                className="nav nav-pills nav-fill mb-3 mt-3"
                 id="ex1"
                 role="tablist">
                 {/* All Tickets */}
-                <li class="nav-item flat-card-style mx-3" role="presentation">
+                <li
+                  className="nav-item flat-card-style mx-3"
+                  role="presentation">
                   <a
-                    class="nav-link active fs-6 nav-item-custom active  zoomIn"
+                    className="nav-link active fs-6 nav-item-custom active  zoomIn"
                     id="ex2-tab-1"
                     data-mdb-toggle="pill"
                     href="#ex2-pills-1"
@@ -66,9 +68,11 @@ export default function Help() {
                 </li>
 
                 {/* Open New Ticket */}
-                <li class="nav-item flat-card-style mx-3" role="presentation">
+                <li
+                  className="nav-item flat-card-style mx-3"
+                  role="presentation">
                   <a
-                    class="nav-link fs-6 nav-item-custom zoomIn"
+                    className="nav-link fs-6 nav-item-custom zoomIn"
                     id="ex2-tab-2"
                     data-mdb-toggle="pill"
                     href="#ex2-pills-2"
@@ -80,9 +84,11 @@ export default function Help() {
                 </li>
 
                 {/* Feedbacks & Bug Reports */}
-                <li class="nav-item flat-card-style mx-3" role="presentation">
+                <li
+                  className="nav-item flat-card-style mx-3"
+                  role="presentation">
                   <a
-                    class="nav-link fs-6 nav-item-custom zoomIn"
+                    className="nav-link fs-6 nav-item-custom zoomIn"
                     id="ex2-tab-3"
                     data-mdb-toggle="pill"
                     href="#ex2-pills-3"
@@ -95,10 +101,10 @@ export default function Help() {
               </ul>
 
               {/* Tab Contents */}
-              <div class="tab-content" id="ex2-content">
+              <div className="tab-content" id="ex2-content">
                 {/* All Tickets */}
                 <div
-                  class="tab-pane fade show active fadeIn p-3 zoomIn mx-5 pills-custom"
+                  className="tab-pane fade show active fadeIn p-3 zoomIn mx-5 pills-custom"
                   id="ex2-pills-1"
                   role="tabpanel"
                   aria-labelledby="ex2-tab-1">
@@ -116,7 +122,7 @@ export default function Help() {
 
                 {/* Open New Ticket */}
                 <div
-                  class="tab-pane fade fadeIn p-3 zoomIn mx-5 pills-custom"
+                  className="tab-pane fade fadeIn p-3 zoomIn mx-5 pills-custom"
                   id="ex2-pills-2"
                   role="tabpanel"
                   aria-labelledby="ex2-tab-2">
@@ -125,7 +131,7 @@ export default function Help() {
 
                 {/* Feedbacks & Bug Reports */}
                 <div
-                  class="tab-pane fade fadeIn p-3 zoomIn mx-5 pills-custom"
+                  className="tab-pane fade fadeIn p-3 zoomIn mx-5 pills-custom"
                   id="ex2-pills-3"
                   role="tabpanel"
                   aria-labelledby="ex2-tab-3">

@@ -38,7 +38,7 @@ createTheme(
 
 export default function TransactionsHistory({
   duration = "recent",
-  filter = {},
+  filter = null,
 }) {
   const {
     recentTransactions,
@@ -147,14 +147,64 @@ export default function TransactionsHistory({
     : []
 
   function filterData(data) {
+    if (!filter) return data
+    const categoryOutput = []
+    const statusOutput = []
+    const startDateOutput = []
+    const endDateOutput = []
     let currentCategory
+    let currentStatus
+    let output = data
 
+    // Filter Category
     for (let i = 0; i < data.length; i++) {
-      if (filter.category !== "all") {
+      currentCategory = getPaymentCategory(data[i].category, paymentCategories)
+      if (
+        filter.category === "All" ||
+        currentCategory.toLowerCase() === filter.category.toLowerCase()
+      ) {
+        categoryOutput.push(data[i])
+        output = categoryOutput
       }
     }
 
-    return data
+    // Filter Status
+    for (let i = 0; i < categoryOutput.length; i++) {
+      currentStatus = getTransactionStatusName(
+        categoryOutput[i].status,
+        transactionStatuses
+      )
+      if (
+        filter.status === "All" ||
+        currentStatus.toLowerCase() === filter.status.toLowerCase()
+      ) {
+        statusOutput.push(categoryOutput[i])
+        output = statusOutput
+      }
+    }
+
+    // Filter Start Date
+    for (let i = 0; i < statusOutput.length; i++) {
+      if (
+        filter.startDate &&
+        new Date(data[i].created_at) >= new Date(filter.startDate)
+      ) {
+        startDateOutput.push(statusOutput[i])
+        output = startDateOutput
+      }
+    }
+
+    // Filter End Date
+    for (let i = 0; i < startDateOutput.length; i++) {
+      if (
+        filter.endDate &&
+        new Date(data[i].created_at) <= new Date(filter.endDate)
+      ) {
+        endDateOutput.push(startDateOutput[i])
+        output = endDateOutput
+      }
+    }
+    return output
   }
 
   // Construct Table Data

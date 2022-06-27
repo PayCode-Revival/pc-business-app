@@ -16,6 +16,7 @@ import {
 import Settings from "../../routes/Settings/Settings"
 import Help from "../../routes/Help/Help"
 import Modal from "../Modal/Modal"
+import Login from "../../routes/Login/Login"
 
 export const AllRoutes = () => {
   const location = useLocation()
@@ -150,6 +151,7 @@ export const AllRoutes = () => {
       <UserFormContext.Provider value={{}}>
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<App />} />
+          <Route path="login" element={<Login />} />
           <Route path="dashboard" element={<App />} />
           <Route path="wallet/:action" element={<Wallet />} />
           <Route path="accounts/:action" element={<Accounts />} />
