@@ -1,5 +1,6 @@
 // Components
 import "./TitleBar.css"
+import logo from "./../../assets/img/logo.png"
 
 // Electron
 const electron = window.require("electron")
@@ -11,31 +12,22 @@ export default function TitleBar() {
   }
   return (
     <div
-      className="d-flex justify-content-around align-items-center p-2 user-select-none"
+      className="d-flex justify-content-between align-items-center p-2 user-select-none"
       id="title-bar">
-      <div className="draggable" id="drag-area">
-        {/* Identity */}
-        <div
-          id="identity"
-          className="d-flex align-items-center identity draggable">
-          <div className="" id="logo">
-            <img
-              src="https://picsum.photos/200"
-              alt=""
-              className="rounded-circle"
-              id="logo-img"
-            />
-          </div>
-          <div id="app-name" className="fw-bolder">
-            PayCode Business
-          </div>
+      <span className="draggable d-flex justify-content-between col-6">
+        {/* Logo */}
+        <div className="p-1">
+          <span>
+            <img src={logo} className="img-fluid" width={"25vw"} />
+          </span>
         </div>
-      </div>
+
+        {/* App Name */}
+        <span className="fw-bolder align-self-center">PayMaker Business</span>
+      </span>
 
       {/* Window Controls */}
-      <div
-        id="window-controls"
-        className="d-flex justify-content-evenly align-items-center">
+      <div className="d-flex justify-content-evenly align-items-center window-controls">
         <div
           className="window-control"
           onClick={() => windowControl(windowControl("-"))}>

@@ -145,7 +145,9 @@ export default function Manage() {
                           capitalizeFirsts(category.description)}
                       </span>
                     </div>
+
                     <div className="d-flex justify-content-center align-items-center ">
+                      {/* Edit */}
                       <div
                         className="m-2 btn d-flex flex-column justify-content-center align-items-center zoomIn action-buttons rounded p-2"
                         role={"button"}
@@ -170,6 +172,8 @@ export default function Manage() {
                           Edit
                         </span>
                       </div>
+
+                      {/* Delete */}
                       <div
                         className="m-2 btn d-flex flex-column justify-content-center align-items-center zoomIn action-buttons rounded p-2"
                         data-mdb-toggle="modal"
@@ -219,6 +223,27 @@ export default function Manage() {
                           role={"button"}
                           style={{ color: "var(--primary-color)" }}>
                           Delete
+                        </span>
+                      </div>
+
+                      {/* Delete */}
+                      <div
+                        className="m-2 btn d-flex flex-column justify-content-center align-items-center zoomIn action-buttons rounded p-2"
+                        data-mdb-toggle="modal"
+                        data-mdb-target="#exampleModal"
+                        onClick={() => {
+                          setModalTitle("QR Code")
+                          setSaveBtnText("Save")
+                          setModalBody(<>QR Generated...</>)
+                        }}>
+                        <Icon style={{ color: "var(--primary-color)" }}>
+                          qr_code
+                        </Icon>
+                        <span
+                          className="text m-2"
+                          role={"button"}
+                          style={{ color: "var(--primary-color)" }}>
+                          QR Code
                         </span>
                       </div>
                     </div>

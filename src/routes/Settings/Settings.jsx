@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useContext } from "react"
 import TitleBar from "../../components/TitleBar/TitleBar"
 import Header from "../../components/Header/Header"
 import "./Settings.css"
@@ -6,14 +6,14 @@ import SidebarAlt from "../../components/SidebarAlt/SidebarAlt"
 import { Icon } from "@mui/material"
 import { SectionHeader } from "../../components/SectionHeader/SectionHeader"
 import { generateRandomNumber } from "../../statics/allFunctions"
+import { useNavigate } from "react-router-dom"
+import { ApiDataContext } from "../../contexts/ApiDataContext"
 
 export default function Settings() {
+  const { setLoggedIn, checkLoginStatus } = useContext(ApiDataContext)
   const [sidebar, setSideBar] = useState(true)
   const toggleSideBar = () => setSideBar(!sidebar)
-
-  // #################################################### API Functions Start ####################################################
-
-  // #################################################### API Functions End ####################################################
+  const navigate = useNavigate()
 
   return (
     <>
@@ -49,7 +49,16 @@ export default function Settings() {
               <Icon>brightness_6</Icon>
               <span className="ms-3 fs-6">App Theme</span>
             </div>
-            <div className="p-3 d-flex align-items-center m-5 flat-card-style zoomIn btn text custom-hover">
+            <div
+              className="p-3 d-flex align-items-center m-5 flat-card-style zoomIn btn text custom-hover"
+              onClick={() => {
+                localStorage.removeItem("bearer-token")
+                setLoggedIn(false)
+                setTimeout(() => {
+                  navigate("/login")
+                }, 1000)
+                //
+              }}>
               <Icon>brightness_6</Icon>
               <span className="ms-3 fs-6">Logout</span>
             </div>

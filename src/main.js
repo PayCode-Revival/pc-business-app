@@ -38,9 +38,6 @@ function createWindow() {
     // Open the DevTools.
     // mainWindow.webContents.openDevTools();
 
-    // Clear Cache
-    mainWindow.webContents.session.clearStorageData()
-    mainWindow.webContents.session.clearCache()
 
 
 

@@ -12,8 +12,6 @@ export default function App() {
   const toggleSideBar = () => setSideBar(!sidebar)
   const navigate = useNavigate()
 
-  navigate("/login")
-
   return (
     <>
       {/* Title Bar */}

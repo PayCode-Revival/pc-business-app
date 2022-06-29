@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from "react"
+import React, { createContext, useState, useEffect, useRef } from "react"
 import { Routes, Route, useLocation } from "react-router-dom"
 import Wallet from "../../routes/Wallet/Wallet"
 import App from "../../App"
@@ -15,12 +15,13 @@ import {
 } from "./../../statics/allFunctions"
 import Settings from "../../routes/Settings/Settings"
 import Help from "../../routes/Help/Help"
-import Modal from "../Modal/Modal"
 import Login from "../../routes/Login/Login"
+import { api, bearerToken } from "../../statics/api"
+import { useNavigate } from "react-router-dom"
 
 export const AllRoutes = () => {
   const location = useLocation()
-
+  const [loggedIn, setLoggedIn] = useState(false)
   const [businessInfo, setBusinessInfo] = useState({})
   const [walletBalance, setWalletBalance] = useState(retrievingPlaceholder)
   const [recentTransactions, setRecentTransactions] = useState(null)
@@ -31,6 +32,10 @@ export const AllRoutes = () => {
   const [transactionStatuses, setTransactionStatuses] = useState(null)
   const [loggedInUser, setLoggedInUser] = useState(null)
   const [allTransactions, setAllTransactions] = useState(null)
+  const navigate = useNavigate()
+
+  // console.log(bearerToken)
+  // localStorage.clear()
 
   const updateWalletBalance = (value) => {
     setWalletBalance(currency(value))
@@ -38,11 +43,13 @@ export const AllRoutes = () => {
 
   // API Call For Logged In User Information
   async function getLoggedInUserInfo() {
-    const loggedInUserInfo = await makeApiRequest(
-      "business/users/current",
-      "get"
-    )
-    setLoggedInUser(loggedInUserInfo)
+    try {
+      const loggedInUserInfo = await api.get("business/users/current")
+      setLoggedInUser(loggedInUserInfo.data)
+      return true
+    } catch (err) {
+      return false
+    }
   }
 
   // API Call For Business Info
@@ -109,8 +116,16 @@ export const AllRoutes = () => {
     setAllTransactions(allTransactions)
   }
 
-  useEffect(() => {
-    // Execute All ASYNC Functions
+  // Check Login Status
+  async function checkLoginStatus() {
+    if (bearerToken && (await getLoggedInUserInfo())) {
+      return true
+    } else {
+      return false
+    }
+  }
+
+  function executeAll() {
     getLoggedInUserInfo()
     getBusinessInfo()
     getSavedBankAccounts()
@@ -120,49 +135,66 @@ export const AllRoutes = () => {
     getPaymentCategories()
     getTransactionStatuses()
     getAllTransactions()
+  }
+
+  useEffect(() => {
+    checkLoginStatus().then((res) => {
+      if (res) {
+        executeAll()
+        navigate("/dashboard")
+      } else {
+        navigate("/login")
+      }
+    })
   }, [])
 
   return (
-    <ApiDataContext.Provider
-      value={{
-        // Data
-        businessInfo,
-        walletBalance,
-        savedBankAccounts,
-        recentTransactions,
-        monthTransactions,
-        userAccounts,
-        paymentCategories,
-        transactionStatuses,
-        loggedInUser,
-        allTransactions,
+    <>
+      <ApiDataContext.Provider
+        value={{
+          // Data
+          loggedIn,
+          setLoggedIn,
+          businessInfo,
+          walletBalance,
+          savedBankAccounts,
+          recentTransactions,
+          monthTransactions,
+          userAccounts,
+          paymentCategories,
+          transactionStatuses,
+          loggedInUser,
+          allTransactions,
 
-        // API Functions
-        getLoggedInUserInfo,
-        getBusinessInfo,
-        getSavedBankAccounts,
-        getRecentTransactions,
-        getUserAccounts,
-        getMonthTransactions,
-        getPaymentCategories,
-        getTransactionStatuses,
-        getAllTransactions,
-      }}>
-      <UserFormContext.Provider value={{}}>
-        <Routes location={location} key={location.pathname}>
-          <Route path="/" element={<App />} />
-          <Route path="login" element={<Login />} />
-          <Route path="dashboard" element={<App />} />
-          <Route path="wallet/:action" element={<Wallet />} />
-          <Route path="accounts/:action" element={<Accounts />} />
-          <Route path="payments/:action" element={<Payments />} />
-          <Route path="reports/:action" element={<Reports />} />
-          <Route path="users/:action" element={<Users />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/help" element={<Help />} />
-          {/* <Route path="/test" element={<Modal />} /> */}
-        </Routes>
-      </UserFormContext.Provider>
-    </ApiDataContext.Provider>
+          // API Functions
+          executeAll,
+          checkLoginStatus,
+          getLoggedInUserInfo,
+          getBusinessInfo,
+          getSavedBankAccounts,
+          getRecentTransactions,
+          getUserAccounts,
+          getMonthTransactions,
+          getPaymentCategories,
+          getTransactionStatuses,
+          getAllTransactions,
+        }}>
+        <UserFormContext.Provider value={{}}>
+          <Routes location={location} key={location.pathname}>
+            <Route path="/" element={<App />} />
+            <Route path="login" element={<Login />} />
+            <Route path="dashboard" element={<App />} />
+            <Route path="wallet/:action" element={<Wallet />} />
+            <Route path="accounts/:action" element={<Accounts />} />
+            <Route path="payments/:action" element={<Payments />} />
+            <Route path="reports/:action" element={<Reports />} />
+            <Route path="users/:action" element={<Users />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/help" element={<Help />} />
+            {/* <Route path="/test" element={<Modal />} /> */}
+          </Routes>
+        </UserFormContext.Provider>
+      </ApiDataContext.Provider>
+    </>
   )
 }
