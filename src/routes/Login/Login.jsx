@@ -1,4 +1,4 @@
-import { useState, useContext } from "react"
+import { useState, useContext, useEffect } from "react"
 import { Icon } from "@mui/material"
 import TitleBar from "./../../components/TitleBar/TitleBar"
 import { api } from "./../../statics/api"
@@ -7,16 +7,20 @@ import "./Login.css"
 import { retrievingPlaceholder } from "../../statics/allFunctions"
 import { useNavigate } from "react-router-dom"
 import { ApiDataContext } from "../../contexts/ApiDataContext"
-import { useEffect } from "react"
+import { getSavedBearerToken } from "./../../statics/api"
 
 export default function Login({}) {
   const { loggedIn, setLoggedIn, checkLoginStatus, executeAll } =
     useContext(ApiDataContext)
-  const [businessID, setBusinessID] = useState(null)
-  const [authID, setAuthID] = useState(null)
-  const [password, setPassword] = useState(null)
-  const [showBtn, setShowBtn] = useState(true)
+  // const [businessID, setBusinessID] = useState(null)
+  // const [authID, setAuthID] = useState(null)
+  // const [password, setPassword] = useState(null)
 
+  const [businessID, setBusinessID] = useState("P376218339ID")
+  const [authID, setAuthID] = useState("drey")
+  const [password, setPassword] = useState("Rainbow6Siege@@")
+
+  const [showBtn, setShowBtn] = useState(true)
   const [toastOpen, setToastOpen] = useState(false)
   const [showStatus, setShowStatus] = useState(false)
   const [statusCode, setStatusCode] = useState(0)
@@ -29,15 +33,15 @@ export default function Login({}) {
   async function submitLoginForm() {
     setShowBtn(false)
     try {
-      const loginRequest = await api.post("login/business", {
+      const loginRequest = await api("login/business", "post", {
         business: businessID,
         auth_id: authID,
         password: password,
       })
 
       if (loginRequest.status == "201") {
-        setLoggedIn(true)
         localStorage.setItem("bearer-token", loginRequest.data.token)
+        setLoggedIn(true)
         setToastSeverity("success")
         setToastMessage("Authentication Successful")
         setToastOpen(true)
@@ -67,7 +71,11 @@ export default function Login({}) {
   useEffect(() => {
     checkLoginStatus().then((res) => {
       if (res && loggedIn) {
+        // console.log("Logged In Already")
+        executeAll()
         navigate("/")
+      } else {
+        // console.log("Unauthorized")
       }
     })
   }, [])
@@ -85,11 +93,11 @@ export default function Login({}) {
           {/* Left Side */}
           <div className="col col-7">
             {/* Logo */}
-            <div className="row mx-auto ms-3">
+            <div className="row mx-auto ms-3 mt-5">
               <div className="col-4 mx-auto">
                 <img
-                  className="img-fluid h-100 shadow-2-strong btn zoomIn fadeIn"
-                  src="assets/img/default.png"
+                  className="img-fluid h-100 shadow-2-strong btn zoomIn fadeIn w-75"
+                  src="assets/img/logo-light.png"
                   alt=""
                 />
               </div>
@@ -131,7 +139,7 @@ export default function Login({}) {
                           className="form-control"
                           placeholder=" "
                           required
-                          value={businessID ? businessID : ""}
+                          value={businessID || ""}
                           onChange={(e) => setBusinessID(e.target.value)}
                         />
                         <label className="fs-6 text text-nowrap">

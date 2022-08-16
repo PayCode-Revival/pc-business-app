@@ -31,12 +31,16 @@ export default function Form() {
     if (accountName) {
       setShowBtn(false)
       try {
-        const submitAccountInfo = await api.post("business/bank-accounts/add", {
-          header: {},
-          bank_name: bankName,
-          account_number: accountNumber,
-          account_name: accountName,
-        })
+        const submitAccountInfo = await api(
+          "business/bank-accounts/add",
+          "post",
+          {
+            header: {},
+            bank_name: bankName,
+            account_number: accountNumber,
+            account_name: accountName,
+          }
+        )
         if (
           submitAccountInfo.status == 200 ||
           submitAccountInfo.status == 201
@@ -75,7 +79,7 @@ export default function Form() {
           setAccountInfoError("Retrieving Account Details")
           // API Call For Account Name
           try {
-            const accountDetails = await api.get(
+            const accountDetails = await api(
               `nuban/${accountNumber}?bank_code=${Nuban.bankCode(
                 bankName.toUpperCase()
               )}`

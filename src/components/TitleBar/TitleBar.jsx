@@ -1,16 +1,20 @@
 // Components
 import "./TitleBar.css"
 import logo from "./../../assets/img/logo.png"
+import isElectron from "is-electron"
 
 // Electron
-const electron = window.require("electron")
-const { ipcRenderer } = electron
+let electron
+if (isElectron()) {
+  electron = window.require("electron")
+  const { ipcRenderer } = electron
+}
 
 export default function TitleBar() {
   function windowControl(action) {
     ipcRenderer.invoke("window-controls", action).then((result) => {})
   }
-  return (
+  return isElectron() ? (
     <div
       className="d-flex justify-content-between align-items-center p-2 user-select-none"
       id="title-bar">
@@ -45,5 +49,7 @@ export default function TitleBar() {
         </div>
       </div>
     </div>
+  ) : (
+    <></>
   )
 }

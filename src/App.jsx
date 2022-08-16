@@ -5,17 +5,16 @@ import Header from "./components/Header/Header"
 import "./App.css"
 import SidebarAlt from "./components/SidebarAlt/SidebarAlt"
 import Main from "./components/Main/Main"
-import { useNavigate } from "react-router-dom"
+import isElectron from "is-electron"
 
 export default function App() {
   const [sidebar, setSideBar] = useState(true)
   const toggleSideBar = () => setSideBar(!sidebar)
-  const navigate = useNavigate()
 
   return (
     <>
       {/* Title Bar */}
-      <TitleBar />
+      {isElectron() && <TitleBar />}
 
       {/* Header */}
       <Header sideBarToggleFunc={toggleSideBar} currentState={sidebar} />

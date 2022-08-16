@@ -43,8 +43,9 @@ export default function Manage() {
   async function deletePaymentCategory(id) {
     // console.log(paymentID)
     try {
-      const deletePaymentCategoryRequest = await api.post(
-        "business/payment-categories/delete/" + id
+      const deletePaymentCategoryRequest = await api(
+        "business/payment-categories/delete/" + id,
+        "post"
       )
       if (
         deletePaymentCategoryRequest.status == "200" ||

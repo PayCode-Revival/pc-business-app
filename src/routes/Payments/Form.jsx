@@ -30,8 +30,9 @@ export default function Form() {
     console.log(defaultAccount)
     setShowBtn(false)
     try {
-      const addPaymentCategoryRequest = await api.post(
+      const addPaymentCategoryRequest = await api(
         "business/payment-categories/add",
+        "post",
         {
           title: categoryTitle,
           color: categoryColor,

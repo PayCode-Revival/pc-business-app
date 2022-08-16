@@ -52,7 +52,7 @@ export default function UpdateForm({ data }) {
 
           // API Call For Account Name
           try {
-            const accountDetails = await api.get(
+            const accountDetails = await api(
               `nuban/${currentAccountNumber}?bank_code=${Nuban.bankCode(
                 currentBankName.toUpperCase()
               )}`
@@ -88,10 +88,10 @@ export default function UpdateForm({ data }) {
     if (accountName) {
       setShowBtn(false)
       try {
-        const submitAccountInfo = await api.post(
+        const submitAccountInfo = await api(
           "business/bank-accounts/update/" + accountId,
+          "post",
           {
-            header: {},
             bank_name: bankName ? bankName : data.bank_name,
             account_number: accountNumber ? accountNumber : data.account_number,
             account_name: accountName ? accountName : data.account_name,

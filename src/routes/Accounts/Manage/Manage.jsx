@@ -24,8 +24,9 @@ export default function Manage() {
   async function deleteAccount(accountID) {
     // API Call To Delete Account
     try {
-      const deleteAccountRequest = await api.post(
-        `business/bank-accounts/delete/${accountID}`
+      const deleteAccountRequest = await api(
+        `business/bank-accounts/delete/${accountID}`,
+        "post"
       )
 
       if (
@@ -50,8 +51,9 @@ export default function Manage() {
   async function toggleAccountState(accountID, state) {
     // API Call To Toggle Account
     try {
-      const toggleAccountStateRequest = await api.post(
-        `business/bank-accounts/toggle/${accountID}?state=${state}`
+      const toggleAccountStateRequest = await api(
+        `business/bank-accounts/toggle/${accountID}?state=${state}`,
+        "post"
       )
 
       if (

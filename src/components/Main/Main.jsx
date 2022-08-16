@@ -12,14 +12,20 @@ import {
 import { ApiDataContext } from "../../contexts/ApiDataContext"
 import TransactionsHistory from "../../routes/Reports/Summaries/TransactionsHistory/TransactionsHistory"
 
-const Main = ({}) => {
+export default function Main({}) {
   const {
+    checkLoginStatus,
     walletBalance,
     savedBankAccounts,
     recentTransactions,
     userAccounts,
     monthTransactions,
+    executeAll,
   } = useContext(ApiDataContext)
+
+  useEffect(() => {
+    // executeAll()
+  }, [])
 
   // Today's Incoming Transactions Calculation
   let totalTransVal
@@ -177,5 +183,3 @@ const Main = ({}) => {
     </div>
   )
 }
-
-export default Main

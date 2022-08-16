@@ -1,3 +1,6 @@
+process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true';
+const { default: installExtension, REACT_DEVELOPER_TOOLS } = require('electron-devtools-installer');
+
 const { ipcMain } = require('electron');
 const electron = require('electron');
 // Module to control application life.

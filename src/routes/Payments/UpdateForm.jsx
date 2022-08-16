@@ -51,8 +51,9 @@ export default function UpdateForm({ data }) {
   async function handleFormSubmit(categoryID) {
     submitButtonRef.current.disabled = true
     try {
-      const updatePaymentCategoryRequest = await api.post(
+      const updatePaymentCategoryRequest = await api(
         "business/payment-categories/update/" + categoryID,
+        "post",
         {
           title: categoryTitle ? categoryTitle : data.title,
           color: categoryColor ? categoryColor : data.color,

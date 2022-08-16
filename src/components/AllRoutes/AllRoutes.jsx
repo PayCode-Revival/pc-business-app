@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useRef } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { Routes, Route, useLocation } from "react-router-dom"
 import Wallet from "../../routes/Wallet/Wallet"
 import App from "../../App"
@@ -8,19 +8,18 @@ import Reports from "../../routes/Reports/Reports"
 import Users from "../../routes/Users/Users"
 import { ApiDataContext } from "../../contexts/ApiDataContext"
 import { UserFormContext } from "../../contexts/UsersFormContext"
-import {
-  retrievingPlaceholder,
-  makeApiRequest,
-  currency,
-} from "./../../statics/allFunctions"
+import { retrievingPlaceholder, currency } from "./../../statics/allFunctions"
 import Settings from "../../routes/Settings/Settings"
 import Help from "../../routes/Help/Help"
 import Login from "../../routes/Login/Login"
-import { api, bearerToken } from "../../statics/api"
+import { api, getSavedBearerToken } from "../../statics/api"
 import { useNavigate } from "react-router-dom"
+
+// console.log(getSavedBearerToken())
 
 export const AllRoutes = () => {
   const location = useLocation()
+  const [isBusy, setIsBusy] = useState(true)
   const [loggedIn, setLoggedIn] = useState(false)
   const [businessInfo, setBusinessInfo] = useState({})
   const [walletBalance, setWalletBalance] = useState(retrievingPlaceholder)
@@ -34,9 +33,6 @@ export const AllRoutes = () => {
   const [allTransactions, setAllTransactions] = useState(null)
   const navigate = useNavigate()
 
-  // console.log(bearerToken)
-  // localStorage.clear()
-
   const updateWalletBalance = (value) => {
     setWalletBalance(currency(value))
   }
@@ -44,8 +40,8 @@ export const AllRoutes = () => {
   // API Call For Logged In User Information
   async function getLoggedInUserInfo() {
     try {
-      const loggedInUserInfo = await api.get("business/users/current")
-      setLoggedInUser(loggedInUserInfo.data)
+      const loggedInUserInfo = await (await api("business/users/current")).data
+      setLoggedInUser(loggedInUserInfo)
       return true
     } catch (err) {
       return false
@@ -54,71 +50,64 @@ export const AllRoutes = () => {
 
   // API Call For Business Info
   async function getBusinessInfo() {
-    const businessInfo = await makeApiRequest("business/view", "get")
+    const businessInfo = await (await api("business/view")).data
     setBusinessInfo(businessInfo)
     updateWalletBalance(businessInfo.wallet_balance)
   }
 
   // API Call For Transactions Made In The Past 7 Days
   async function getRecentTransactions() {
-    const recentTransactions = await makeApiRequest(
-      "transactions/some/7",
-      "get"
-    )
+    const recentTransactions = await (await api("transactions/some/7")).data
     setRecentTransactions(recentTransactions)
   }
 
   // API Call For Transactions Made This Month
   async function getMonthTransactions() {
-    const monthTransactions = await makeApiRequest(
-      "transactions/month/current",
-      "get"
-    )
+    const monthTransactions = await (
+      await api("transactions/month/current")
+    ).data
     setMonthTransactions(monthTransactions)
   }
 
   // API Cal For Saved Bank Accounts
   async function getSavedBankAccounts() {
-    const savedBankAccounts = await makeApiRequest(
-      "business/bank-accounts/all",
-      "get"
-    )
+    const savedBankAccounts = await (
+      await api("business/bank-accounts/all")
+    ).data
     setSavedBankAccounts(savedBankAccounts)
   }
 
   // API Cal For User Accounts
   async function getUserAccounts() {
-    const userAccounts = await makeApiRequest("business/users/all", "get")
+    const userAccounts = await (await api("business/users/all")).data
     setUserAccounts(userAccounts)
   }
 
   // API Call For Payment Categories
   async function getPaymentCategories() {
-    const paymentCategories = await makeApiRequest(
-      "business/payment-categories/all",
-      "get"
-    )
+    const paymentCategories = await (
+      await api("business/payment-categories/all")
+    ).data
     setPaymentCategories(paymentCategories)
   }
 
   // API Call For Transaction Statuses
   async function getTransactionStatuses() {
-    const transactionStatuses = await makeApiRequest(
-      "business/payment-status/all",
-      "get"
-    )
+    const transactionStatuses = await (
+      await api("business/payment-status/all")
+    ).data
     setTransactionStatuses(transactionStatuses)
   }
 
   // API Call For All Transactions
   async function getAllTransactions() {
-    const allTransactions = await makeApiRequest("transactions/all", "get")
+    const allTransactions = await (await api("transactions/all")).data
     setAllTransactions(allTransactions)
   }
 
   // Check Login Status
   async function checkLoginStatus() {
-    if (bearerToken && (await getLoggedInUserInfo())) {
+    if (getSavedBearerToken() && (await getLoggedInUserInfo())) {
       return true
     } else {
       return false
@@ -146,55 +135,64 @@ export const AllRoutes = () => {
         navigate("/login")
       }
     })
+    setIsBusy(false)
   }, [])
 
-  return (
-    <>
-      <ApiDataContext.Provider
-        value={{
-          // Data
-          loggedIn,
-          setLoggedIn,
-          businessInfo,
-          walletBalance,
-          savedBankAccounts,
-          recentTransactions,
-          monthTransactions,
-          userAccounts,
-          paymentCategories,
-          transactionStatuses,
-          loggedInUser,
-          allTransactions,
+  if (!isBusy) {
+    return (
+      <>
+        <ApiDataContext.Provider
+          value={{
+            // Data
+            loggedIn,
+            setLoggedIn,
+            businessInfo,
+            walletBalance,
+            savedBankAccounts,
+            recentTransactions,
+            monthTransactions,
+            userAccounts,
+            paymentCategories,
+            transactionStatuses,
+            loggedInUser,
+            allTransactions,
 
-          // API Functions
-          executeAll,
-          checkLoginStatus,
-          getLoggedInUserInfo,
-          getBusinessInfo,
-          getSavedBankAccounts,
-          getRecentTransactions,
-          getUserAccounts,
-          getMonthTransactions,
-          getPaymentCategories,
-          getTransactionStatuses,
-          getAllTransactions,
-        }}>
-        <UserFormContext.Provider value={{}}>
-          <Routes location={location} key={location.pathname}>
-            <Route path="/" element={<App />} />
-            <Route path="login" element={<Login />} />
-            <Route path="dashboard" element={<App />} />
-            <Route path="wallet/:action" element={<Wallet />} />
-            <Route path="accounts/:action" element={<Accounts />} />
-            <Route path="payments/:action" element={<Payments />} />
-            <Route path="reports/:action" element={<Reports />} />
-            <Route path="users/:action" element={<Users />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/help" element={<Help />} />
-            {/* <Route path="/test" element={<Modal />} /> */}
-          </Routes>
-        </UserFormContext.Provider>
-      </ApiDataContext.Provider>
-    </>
-  )
+            // API Functions
+            executeAll,
+            checkLoginStatus,
+            getLoggedInUserInfo,
+            getBusinessInfo,
+            getSavedBankAccounts,
+            getRecentTransactions,
+            getUserAccounts,
+            getMonthTransactions,
+            getPaymentCategories,
+            getTransactionStatuses,
+            getAllTransactions,
+          }}>
+          <UserFormContext.Provider value={{}}>
+            <Routes location={location} key={location.pathname}>
+              <Route path="/" element={<App />} />
+              <Route path="login" element={<Login />} />
+              <Route path="dashboard" element={<App />} />
+              <Route path="wallet/:action" element={<Wallet />} />
+              <Route path="accounts/:action" element={<Accounts />} />
+              <Route path="payments/:action" element={<Payments />} />
+              <Route path="reports/:action" element={<Reports />} />
+              <Route path="users/:action" element={<Users />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/help" element={<Help />} />
+              {/* <Route path="/test" element={<Modal />} /> */}
+            </Routes>
+          </UserFormContext.Provider>
+        </ApiDataContext.Provider>
+      </>
+    )
+  } else {
+    return (
+      <div className="d-flex border border-danger align-items-center justify-content-center flex-grow-1">
+        {retrievingPlaceholder}
+      </div>
+    )
+  }
 }
