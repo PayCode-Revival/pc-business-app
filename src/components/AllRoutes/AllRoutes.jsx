@@ -14,8 +14,7 @@ import Help from "../../routes/Help/Help"
 import Login from "../../routes/Login/Login"
 import { api, getSavedBearerToken } from "../../statics/api"
 import { useNavigate } from "react-router-dom"
-
-// console.log(getSavedBearerToken())
+import Register from "../../routes/Register/Register"
 
 export const AllRoutes = () => {
   const location = useLocation()
@@ -174,6 +173,7 @@ export const AllRoutes = () => {
             <Routes location={location} key={location.pathname}>
               <Route path="/" element={<App />} />
               <Route path="login" element={<Login />} />
+              <Route path="register" element={<Register />} />
               <Route path="dashboard" element={<App />} />
               <Route path="wallet/:action" element={<Wallet />} />
               <Route path="accounts/:action" element={<Accounts />} />

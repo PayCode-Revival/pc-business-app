@@ -20,8 +20,10 @@ export default function Header({ sideBarToggleFunc, currentState }) {
   )
 
   return (
-    <div id="header" className="container-fluid user-select-none">
-      <div className="row g-3 ">
+    <div
+      id="header"
+      className="container-fluid user-select-none border-bottom p-3">
+      <div className="row align-items-center justify-content-between">
         {/* Hamburger & Greeting */}
         <div
           id="hamburger-greeting"
@@ -33,7 +35,7 @@ export default function Header({ sideBarToggleFunc, currentState }) {
             onClick={sideBarToggleFunc}>
             <Icon
               sx={{ color: "var(--primary-color)" }}
-              style={{ fontSize: "3vw" }}>
+              style={{ fontSize: "2vw" }}>
               {!currentState ? "menu" : "close"}
             </Icon>
           </div>
@@ -52,7 +54,8 @@ export default function Header({ sideBarToggleFunc, currentState }) {
               <span
                 id="greeting-text text-nowrap"
                 className="fw-bolder ms-2 fs-5">
-                {greeting()}, {userInfo.first_name}
+                {greeting()}{" "}
+                {userInfo.first_name ? ", " + userInfo.first_name : ""}
               </span>
             </div>
           ) : (
@@ -86,7 +89,7 @@ export default function Header({ sideBarToggleFunc, currentState }) {
           <div id="logged-in-user-name" className="d-flex flex-column ms-3">
             <span id="logged-in-user-name-text" className="fw-bold">
               {loggedInUser
-                ? userInfo.first_name + " " + userInfo.last_name
+                ? (userInfo.first_name || "") + " " + (userInfo.last_name || "")
                 : retrievingPlaceholder}
             </span>
 
@@ -102,7 +105,7 @@ export default function Header({ sideBarToggleFunc, currentState }) {
                 {userInfo.business_role}
               </u>
               <span className="badge bg-primary ms-1 text-uppercase">
-                {userInfo.role}
+                {userInfo.title}
               </span>
             </span>
           </div>

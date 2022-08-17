@@ -91,7 +91,12 @@ export function greeting() {
 }
 
 export async function makeApiRequest(path, callMethod) {
-  const businessInfo = await api[callMethod](path)
+  let businessInfo
+  try {
+    businessInfo = await api[callMethod](path)
+  } catch (err) {
+    businessInfo = err.response.data
+  }
   return businessInfo.data
 }
 

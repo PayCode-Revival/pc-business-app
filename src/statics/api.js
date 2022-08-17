@@ -1,15 +1,7 @@
 import axios from "axios"
 
-// export const api = axios.create({
-//     baseURL: `https://paymaker.io/api/`,
-//     headers: {
-
-//         'Authorization': `Bearer ${getSavedBearerToken()}`,
-//     },
-//     withCredentials: true,
-// })
-
 export function getSavedBearerToken() {
+    console.log(localStorage.getItem("bearer-token"));
     return localStorage.getItem("bearer-token")
 }
 

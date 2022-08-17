@@ -3,18 +3,18 @@ import { Icon } from "@mui/material"
 import TitleBar from "./../../components/TitleBar/TitleBar"
 import { api } from "./../../statics/api"
 import Toast from "../../components/Toast/Toast"
-import "./Login.css"
 import { retrievingPlaceholder } from "../../statics/allFunctions"
 import { useNavigate } from "react-router-dom"
 import { ApiDataContext } from "../../contexts/ApiDataContext"
-import Register from "../Register/Register"
 
-export default function Login({}) {
+export default function Register() {
   const { loggedIn, setLoggedIn, checkLoginStatus, executeAll } =
     useContext(ApiDataContext)
-
-  const [businessID, setBusinessID] = useState("")
-  const [authID, setAuthID] = useState("")
+  const navigate = useNavigate()
+  const [email, setEmail] = useState("")
+  const [phoneNumber, setPhoneNumber] = useState("")
+  const [businessName, setBusinessName] = useState("")
+  const [adminUsername, setAdminUsername] = useState("")
   const [password, setPassword] = useState("")
 
   const [showBtn, setShowBtn] = useState(true)
@@ -25,25 +25,34 @@ export default function Login({}) {
   const [toastSeverity, setToastSeverity] = useState("success")
   const [toastMessage, setToastMessage] = useState(null)
 
-  const navigate = useNavigate()
-
-  async function submitLoginForm() {
+  async function submitRegisterForm() {
     setShowBtn(false)
+    const formData = {
+      phone_number: phoneNumber,
+      name: businessName,
+      email,
+      username: adminUsername,
+      password,
+      password_confirmation: password,
+      role: 1,
+    }
+    console.log(formData)
     try {
-      const loginRequest = await api("login/business", "post", {
-        business: businessID,
-        auth_id: authID,
-        password: password,
-      })
-
-      if (loginRequest.status == "201") {
-        localStorage.setItem("bearer-token", loginRequest.data.token)
+      const registrationRequest = await api(
+        "register/business",
+        "post",
+        formData
+      )
+      if (registrationRequest.status == "201") {
+        localStorage.setItem("bearer-token", registrationRequest.data.token)
         setLoggedIn(true)
         setToastSeverity("success")
-        setToastMessage("Authentication Successful")
+        setToastMessage("Registration Successful")
         setToastOpen(true)
         setStatusCode(1)
-        setStatusMessage("Login Successful.... Now Preparing Your Dashboard")
+        setStatusMessage(
+          "Registration Successful.... Now Preparing Your Dashboard"
+        )
         setShowStatus(true)
         executeAll()
         setTimeout(() => {
@@ -51,12 +60,13 @@ export default function Login({}) {
         }, 2000)
       }
     } catch (err) {
+      console.log(err.response.data)
       setLoggedIn(false)
       setToastSeverity("error")
       setToastMessage(err.message)
       setToastOpen(true)
       setStatusCode(0)
-      setStatusMessage("Authentication Error! Please Try Again.")
+      setStatusMessage("Phone Number / Email Already Exists!")
       setShowStatus(true)
       setShowBtn(true)
     }
@@ -64,18 +74,6 @@ export default function Login({}) {
       setToastOpen(false)
     }, 1500)
   }
-
-  useEffect(() => {
-    checkLoginStatus().then((res) => {
-      if (res && loggedIn) {
-        // console.log("Logged In Already")
-        executeAll()
-        navigate("/")
-      } else {
-        // console.log("Unauthorized")
-      }
-    })
-  }, [])
 
   return (
     <>
@@ -104,14 +102,14 @@ export default function Login({}) {
             <form
               onSubmit={(e) => {
                 e.preventDefault()
-                submitLoginForm()
+                submitRegisterForm()
               }}>
               <div className="row p-3 mt-2">
                 <div className="col col-xl-8 mx-auto p-3 flat-card-style h-100">
                   <div className="d-flex justify-content-center">
                     {!showStatus ? (
                       <span className="mb-3 fw-bolder">
-                        {"Login To PayMaker Business"}
+                        {"Welcome To PayMaker Business"}
                       </span>
                     ) : (
                       <span
@@ -123,8 +121,50 @@ export default function Login({}) {
                     )}
                   </div>
                   <div className="row flex-column p-1">
-                    {/* Business ID */}
+                    {/* Email */}
                     <div className="col mx-auto rounded row">
+                      <div className="col-2 d-flex align-items-center justify-content-center btn">
+                        <Icon style={{ color: "var(--primary-color)" }}>
+                          mail
+                        </Icon>
+                      </div>
+                      <div className="col rounded form-floating custom-btn">
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder=" "
+                          required
+                          value={email || ""}
+                          onChange={(e) => setEmail(e.target.value)}
+                        />
+                        <label className="text text-nowrap">
+                          Email Address
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Phone */}
+                    <div className="col mx-auto rounded row mt-3">
+                      <div className="col-2 d-flex align-items-center justify-content-center btn">
+                        <Icon style={{ color: "var(--primary-color)" }}>
+                          phone
+                        </Icon>
+                      </div>
+                      <div className="col rounded form-floating custom-btn">
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder=" "
+                          required
+                          value={phoneNumber || ""}
+                          onChange={(e) => setPhoneNumber(e.target.value)}
+                        />
+                        <label className="text text-nowrap">Phone Number</label>
+                      </div>
+                    </div>
+
+                    {/* Business Name */}
+                    <div className="col mx-auto rounded row mt-3">
                       <div className="col-2 d-flex align-items-center justify-content-center btn">
                         <Icon style={{ color: "var(--primary-color)" }}>
                           business
@@ -136,16 +176,16 @@ export default function Login({}) {
                           className="form-control"
                           placeholder=" "
                           required
-                          value={businessID || ""}
-                          onChange={(e) => setBusinessID(e.target.value)}
+                          value={businessName || ""}
+                          onChange={(e) => setBusinessName(e.target.value)}
                         />
                         <label className="text text-nowrap">
-                          Business ID | Email
+                          Business Name
                         </label>
                       </div>
                     </div>
 
-                    {/* Authentication ID */}
+                    {/* Admin Username */}
                     <div className="col mx-auto rounded row mt-3">
                       <div className="col-2 d-flex align-items-center justify-content-center btn">
                         <Icon style={{ color: "var(--primary-color)" }}>
@@ -158,11 +198,11 @@ export default function Login({}) {
                           className="form-control"
                           placeholder=" "
                           required
-                          value={authID ? authID : ""}
-                          onChange={(e) => setAuthID(e.target.value)}
+                          value={adminUsername || ""}
+                          onChange={(e) => setAdminUsername(e.target.value)}
                         />
                         <label className="text text-nowrap">
-                          Email | Phone | Username
+                          Admin Username
                         </label>
                       </div>
                     </div>
@@ -190,9 +230,9 @@ export default function Login({}) {
                     {/* Button */}
                     {showBtn ? (
                       <div className="col mx-auto">
-                        <button className="btn btn-block p-2 mt-5 text fw-bolder fs-5 d-flex align-items-center justify-content-center fadeIn zoomIn custom-hover">
-                          <Icon>login</Icon>
-                          <span className="ms-2"> Login</span>
+                        <button className="btn btn-block p-2 mt-5 text fw-bolder d-flex align-items-center justify-content-center fadeIn zoomIn custom-hover">
+                          <Icon>create</Icon>
+                          <span className="ms-2"> Create Business Account</span>
                         </button>
                       </div>
                     ) : (
@@ -202,11 +242,11 @@ export default function Login({}) {
                     {/* Register */}
                     <div
                       className="row p-5 mt-3 justify-content-center"
-                      onClick={() => navigate("/register")}>
+                      onClick={() => navigate("/login")}>
                       <span
-                        className="col d-flex justify-content-center flat-card-style zoomIn btn fw-bold"
+                        className="col d-flex justify-content-center flat-card-style zoomIn btn fw-bold text-nowrap"
                         role={"button"}>
-                        No Account? | Sign Up
+                        Already Registered? | Login
                       </span>
                     </div>
                   </div>

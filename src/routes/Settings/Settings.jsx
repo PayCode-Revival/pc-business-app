@@ -24,11 +24,11 @@ export default function Settings() {
       {/* Contents */}
       <div
         id="settings"
-        className={`d-flex flex-grow-1 h-100 overflow-auto scrollbar `}>
+        className={`d-flex flex-grow-1 h-100 overflow-auto scrollbar`}>
         <SidebarAlt currentState={sidebar} openedNavItem={"Settings"} />
         <div
           id="accounts-contents"
-          className={`fadeIn d-flex flex-column flex-grow-1 h-100 overflow-auto scrollbar`}>
+          className={`fadeIn d-flex flex-column flex-grow-1 h-100 overflow-auto scrollbar pt-3`}>
           <div className="container-fluid h-100 overflow-auto scrollbar">
             <span className="p-3 mt-2">
               <SectionHeader text={"Settings"} />
