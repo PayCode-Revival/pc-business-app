@@ -28,18 +28,19 @@ export default function Form() {
   const navigate = useNavigate()
 
   async function handleFormSubmit() {
+    let formData = {
+      header: {},
+      bank_name: bankName,
+      account_number: accountNumber,
+      account_name: accountName,
+    }
     if (accountName) {
       setShowBtn(false)
       try {
         const submitAccountInfo = await api(
           "business/bank-accounts/add",
           "post",
-          {
-            header: {},
-            bank_name: bankName,
-            account_number: accountNumber,
-            account_name: accountName,
-          }
+          formData
         )
         if (
           submitAccountInfo.status == 200 ||
@@ -59,6 +60,7 @@ export default function Form() {
           }, 2000)
         }
       } catch (err) {
+        // console.log(err.response.data)
         if (err.response.status == 409) {
           setAccountInfoError("Account Already Exists")
         }
