@@ -110,7 +110,7 @@ export default function Manage() {
                       role={"button"}>
                       <div className="d-flex flex-column" role={"button"}>
                         <span className="fw-bolder text text-nowrap fs-4">
-                          {capitalizeFirsts(account.account_name.toLowerCase())}
+                          {account.account_name}
                         </span>
                         <div className="divider"></div>
                         <span
@@ -119,8 +119,7 @@ export default function Manage() {
                             color: "var(--primary-color",
                             fontSize: "0.9vw",
                           }}>
-                          {capitalizeFirsts(account.bank_name.toLowerCase())} |{" "}
-                          {account.account_number} |{" "}
+                          {account.account_name} | {account.account_number} |{" "}
                           {
                             <span
                               className={`badge ${
