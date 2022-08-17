@@ -34,6 +34,9 @@ export default function SidebarAlt({
               id="business-name">
               {businessInfo.name}
             </span>
+            <span className="text-muted ms-3" id="business-id">
+              {businessInfo.paycode_id}
+            </span>
           </div>
         ) : (
           retrievingPlaceholder
