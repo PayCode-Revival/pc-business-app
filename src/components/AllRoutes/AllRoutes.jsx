@@ -218,6 +218,7 @@ export const AllRoutes = () => {
               <Route path="qr-code/" element={<QR />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/help" element={<Help />} />
+              <Route path="*" element={<App />} />
               {/* <Route path="/test" element={<Modal />} /> */}
             </Routes>
           </UserFormContext.Provider>
