@@ -1,13 +1,15 @@
 import React, { useContext, useState, useRef, useEffect } from "react"
 import { Icon } from "@mui/material"
 import { ApiDataContext } from "../../contexts/ApiDataContext"
-import { capitalizeFirsts } from "../../statics/allFunctions"
+import { retrievingPlaceholder } from "../../statics/allFunctions"
 import { api } from "../../statics/api"
+import { useNavigate } from "react-router-dom"
 import Toast from "../../components/Toast/Toast"
 
 export default function Form({}) {
+  const navigate = useNavigate()
   const { getUserAccounts } = useContext(ApiDataContext)
-  const [accessLevel, setAccessLevel] = useState("Admin")
+  const [accessLevel, setAccessLevel] = useState(1)
   const [businessUserRole, setBusinessUserRole] = useState("Administrator")
   const [username, setUsername] = useState("")
   const [firstName, setFirstName] = useState("")
@@ -15,9 +17,10 @@ export default function Form({}) {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
+  const [matchingPasswords, setMatchingPasswords] = useState(false)
   const [selectedImage, setSelectedImage] = useState(false)
   const [uploadInputValue, setUploadInputValue] = useState(null)
-  const [showBtn, setShowBtn] = useState(false)
+  const [showBtn, setShowBtn] = useState(true)
 
   const [toastOpen, setToastOpen] = useState(false)
   const [showStatus, setShowStatus] = useState(true)
@@ -28,18 +31,17 @@ export default function Form({}) {
   const submitButtonRef = useRef()
 
   async function handleFormSubmit() {
-    submitButtonRef.current.disabled = true
-
+    setShowBtn(false)
     try {
-      const addBusinessUserRequest = await api.post("business/users/add", {
-        username: username,
-        password: password,
+      const addBusinessUserRequest = await api("business/users/add", "post", {
+        username,
+        password,
         password_confirmation: confirmPassword,
         first_name: firstName,
         last_name: lastName,
         role: accessLevel,
         business_role: businessUserRole,
-        email: email,
+        email,
         display_picture: uploadInputValue,
       })
       if (
@@ -49,10 +51,12 @@ export default function Form({}) {
         setStatusCode(1)
         setStatusMessage("User Added Successfully")
         setToastOpen(true)
+        await getUserAccounts()
+
         setTimeout(() => {
           setToastOpen(false)
           setShowStatus(false)
-          setAccessLevel("Admin")
+          setAccessLevel(1)
           setBusinessUserRole("Administrator")
           setUsername("")
           setFirstName("")
@@ -62,7 +66,8 @@ export default function Form({}) {
           setConfirmPassword("")
           setSelectedImage(false)
           setUploadInputValue(null)
-          getUserAccounts()
+          setMatchingPasswords(false)
+          navigate("/users/Manage")
         }, 1500)
       }
     } catch (err) {
@@ -71,19 +76,19 @@ export default function Form({}) {
       setShowStatus(true)
       setStatusMessage(err.response.data)
     }
-    submitButtonRef.current.disabled = false
+    setShowBtn(true)
   }
 
   useEffect(() => {
-    if (
-      username.length &&
-      password.length &&
-      confirmPassword.length &&
-      password === confirmPassword
-    ) {
-      setShowBtn(true)
+    if (password.length && password !== confirmPassword) {
+      setStatusCode(0)
+      setShowStatus(1)
+      setStatusMessage("Passwords Do Not Match!")
+      setMatchingPasswords(false)
     } else {
-      setShowBtn(false)
+      setShowStatus(false)
+      setStatusMessage("")
+      setMatchingPasswords(true)
     }
   })
 
@@ -129,16 +134,16 @@ export default function Form({}) {
                     onChange={(e) => {
                       setAccessLevel(e.target.value)
                     }}>
-                    <option>Admin</option>
-                    <option>Assistant</option>
-                    <option>Custom Role</option>
+                    <option value={1}>Admin</option>
+                    <option value={2}>Assistant</option>
+                    <option value={0}>Custom Role</option>
                   </select>
                   <label>User Access Level</label>
                 </div>
               </div>
 
+              {/* Business Role */}
               <div className="col">
-                {/* Business Role */}
                 <div className="form-floating">
                   <input
                     type="text"
@@ -166,6 +171,8 @@ export default function Form({}) {
                     onChange={(e) => {
                       setUsername(e.target.value)
                     }}
+                    minLength={4}
+                    maxLength={12}
                   />
                   <label>Username</label>
                 </div>
@@ -174,8 +181,8 @@ export default function Form({}) {
 
             {/* First & Last Name */}
             <div className="row mt-3">
+              {/* First Name */}
               <div className="col">
-                {/* First Name */}
                 <div className="form-floating">
                   <input
                     type="text"
@@ -185,12 +192,15 @@ export default function Form({}) {
                     onChange={(e) => {
                       setFirstName(e.target.value)
                     }}
+                    minLength={1}
+                    maxLength={30}
                   />
                   <label>First Name</label>
                 </div>
               </div>
+
+              {/* Last Name */}
               <div className="col">
-                {/* Last Name */}
                 <div className="form-floating">
                   <input
                     type="text"
@@ -200,6 +210,8 @@ export default function Form({}) {
                     onChange={(e) => {
                       setLastName(e.target.value)
                     }}
+                    minLength={1}
+                    maxLength={30}
                   />
                   <label>Last Name</label>
                 </div>
@@ -237,6 +249,7 @@ export default function Form({}) {
                     onChange={(e) => {
                       setPassword(e.target.value)
                     }}
+                    minLength={8}
                   />
                   <label>Password</label>
                 </div>
@@ -258,6 +271,7 @@ export default function Form({}) {
                     onChange={(e) => {
                       setConfirmPassword(e.target.value)
                     }}
+                    minLength={8}
                   />
                   <label>Confirm Password</label>
                 </div>
@@ -318,21 +332,25 @@ export default function Form({}) {
             </div>
 
             {/* Button */}
-            {showBtn && (
+            {matchingPasswords && (
               <div className="row mt-3">
-                <div className="input-group col">
-                  <button
-                    ref={submitButtonRef}
-                    className="btn btn-block btn-lg d-flex align-items-center justify-content-center fw-bolder zoomIn fadeIn flat-card-style"
-                    type="submit"
-                    style={{
-                      color: "var(--primary-color)",
-                      backgroundColor: "var(--accent-color)",
-                    }}>
-                    <Icon>add</Icon>
-                    <span className="ms-1 fs-6">Add User</span>
-                  </button>
-                </div>
+                {showBtn ? (
+                  <div className="input-group col">
+                    <button
+                      ref={submitButtonRef}
+                      className="btn btn-block btn-lg d-flex align-items-center justify-content-center fw-bolder zoomIn fadeIn flat-card-style"
+                      type="submit"
+                      style={{
+                        color: "var(--primary-color)",
+                        backgroundColor: "var(--accent-color)",
+                      }}>
+                      <Icon>add</Icon>
+                      <span className="ms-1 fs-6">Add User</span>
+                    </button>
+                  </div>
+                ) : (
+                  <span className="p-5">{retrievingPlaceholder}</span>
+                )}
               </div>
             )}
           </div>

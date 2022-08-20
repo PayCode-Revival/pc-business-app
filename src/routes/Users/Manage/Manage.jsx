@@ -26,24 +26,21 @@ export default function Manage() {
   }
 
   async function deleteUser() {
-    // console.log(userID)
     try {
-      const deleteUserRequest = await api.post(
-        "business/users/delete/" + userID
+      const deleteUserRequest = await api(
+        "business/users/delete/" + userID,
+        "delete"
       )
       if (deleteUserRequest.status == "200") {
-        console.log("Success")
         setToastMessage("User Successfully Deleted")
       }
     } catch (err) {
-      console.log(err.response)
+      // console.log(err.response)
       setToastMessage(err.message)
     }
     setToastOpen(true)
-    setTimeout(() => {
-      setToastOpen(false)
-      getUserAccounts()
-    }, 1500)
+    await getUserAccounts()
+    setToastOpen(false)
   }
 
   return (

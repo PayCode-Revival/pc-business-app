@@ -20,7 +20,7 @@ export default function TopUp() {
       setAmountInput(parsedVal.toLocaleString())
     }
   }
-  const { walletBalance } = useContext(ApiDataContext)
+  const { walletBalance, savedBankAccounts } = useContext(ApiDataContext)
 
   return (
     <>
@@ -51,16 +51,21 @@ export default function TopUp() {
                 </span>
               </>
 
-              {/* Select Card */}
+              {/* Select Account */}
               <div className="form-floating mt-5">
                 <select
                   className="form-select"
                   id="select-card"
                   aria-label="Select Account">
                   <option>Select A Saved Account...</option>
-                  <option value="1">Account One</option>
-                  <option value="2">Account Two</option>
-                  <option value="3">Account Three</option>
+                  {savedBankAccounts &&
+                    savedBankAccounts.map((account, index) => {
+                      return (
+                        <option key={index} value={account.id}>
+                          {account.account_name}
+                        </option>
+                      )
+                    })}
                 </select>
                 <label htmlFor="select-card">Select Bank Account</label>
               </div>

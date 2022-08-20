@@ -8,13 +8,19 @@ import Reports from "../../routes/Reports/Reports"
 import Users from "../../routes/Users/Users"
 import { ApiDataContext } from "../../contexts/ApiDataContext"
 import { UserFormContext } from "../../contexts/UsersFormContext"
-import { retrievingPlaceholder, currency } from "./../../statics/allFunctions"
+import {
+  retrievingPlaceholder,
+  currency,
+  WEEKDAYS,
+  existsInArr,
+} from "./../../statics/allFunctions"
 import Settings from "../../routes/Settings/Settings"
 import Help from "../../routes/Help/Help"
 import Login from "../../routes/Login/Login"
 import { api, getSavedBearerToken } from "../../statics/api"
 import { useNavigate } from "react-router-dom"
 import Register from "../../routes/Register/Register"
+import QR from "../../routes/QR/QR"
 
 export const AllRoutes = () => {
   const location = useLocation()
@@ -22,14 +28,15 @@ export const AllRoutes = () => {
   const [loggedIn, setLoggedIn] = useState(false)
   const [businessInfo, setBusinessInfo] = useState({})
   const [walletBalance, setWalletBalance] = useState(retrievingPlaceholder)
-  const [recentTransactions, setRecentTransactions] = useState(null)
-  const [monthTransactions, setMonthTransactions] = useState(null)
-  const [savedBankAccounts, setSavedBankAccounts] = useState(null)
-  const [userAccounts, setUserAccounts] = useState(null)
-  const [paymentCategories, setPaymentCategories] = useState(null)
+  const [recentTransactions, setRecentTransactions] = useState([])
+  const [parsedRecentTransactions, setParsedRecentTransactions] = useState([])
+  const [monthTransactions, setMonthTransactions] = useState([])
+  const [savedBankAccounts, setSavedBankAccounts] = useState([])
+  const [userAccounts, setUserAccounts] = useState([])
+  const [paymentCategories, setPaymentCategories] = useState([])
   const [transactionStatuses, setTransactionStatuses] = useState(null)
-  const [loggedInUser, setLoggedInUser] = useState(null)
-  const [allTransactions, setAllTransactions] = useState(null)
+  const [loggedInUser, setLoggedInUser] = useState({})
+  const [allTransactions, setAllTransactions] = useState([])
   const navigate = useNavigate()
 
   const updateWalletBalance = (value) => {
@@ -54,10 +61,37 @@ export const AllRoutes = () => {
     updateWalletBalance(businessInfo.wallet_balance)
   }
 
-  // API Call For Transactions Made In The Past 7 Days
+  // API Call For Recent Transactions - Past 7 Days
   async function getRecentTransactions() {
-    const recentTransactions = await (await api("transactions/some/7")).data
-    setRecentTransactions(recentTransactions)
+    try {
+      const recentTransactionsRequest = await (
+        await api("transactions/past/7")
+      ).data
+
+      // Parsed Recent Transactions
+      const parsedRecentTransactionTemp = []
+      for (let i = 0; i < recentTransactionsRequest.length; i++) {
+        let dayIndex = existsInArr(
+          "day",
+          WEEKDAYS[new Date(recentTransactionsRequest[i].created_at).getDay()],
+          parsedRecentTransactionTemp
+        )
+        if (dayIndex > -1) {
+          parsedRecentTransactionTemp[dayIndex].amount += parseFloat(
+            recentTransactionsRequest[i].amount
+          )
+        } else {
+          parsedRecentTransactionTemp.push({
+            amount: parseFloat(recentTransactionsRequest[i].amount),
+            day: WEEKDAYS[
+              new Date(recentTransactionsRequest[i].created_at).getDay()
+            ],
+          })
+        }
+      }
+      setRecentTransactions(recentTransactionsRequest)
+      setParsedRecentTransactions(parsedRecentTransactionTemp)
+    } catch (err) {}
   }
 
   // API Call For Transactions Made This Month
@@ -149,6 +183,7 @@ export const AllRoutes = () => {
             walletBalance,
             savedBankAccounts,
             recentTransactions,
+            parsedRecentTransactions,
             monthTransactions,
             userAccounts,
             paymentCategories,
@@ -180,6 +215,7 @@ export const AllRoutes = () => {
               <Route path="payments/:action" element={<Payments />} />
               <Route path="reports/:action" element={<Reports />} />
               <Route path="users/:action" element={<Users />} />
+              <Route path="qr-code/" element={<QR />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/help" element={<Help />} />
               {/* <Route path="/test" element={<Modal />} /> */}

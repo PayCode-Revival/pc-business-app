@@ -4,149 +4,223 @@ import TransactionsHistory from "./TransactionsHistory/TransactionsHistory"
 import RenderChart from "../../../components/RenderChart/RenderChart"
 import { ApiDataContext } from "../../../contexts/ApiDataContext"
 import {
-  generateLabels,
   CHART_STYLES,
   getPaymentCategory,
   capitalizeFirsts,
+  existsInArr,
+  dayCalculator,
+  retrievingPlaceholder,
 } from "../../../statics/allFunctions"
+import { api } from "../../../statics/api"
 
 export default function Summaries() {
   const {
     recentTransactions,
-    allTransactions,
+    parsedRecentTransactions,
     paymentCategories,
     transactionStatuses,
   } = useContext(ApiDataContext)
 
-  const [barChartData, setBarChartData] =
-    recentTransactions && paymentCategories
-      ? useState({
-          labels: generateLabels(7),
-          datasets: [
-            {
-              label: "Day",
-              data: recentTransactions.map((data) => data.amount),
-              ...CHART_STYLES,
-            },
-          ],
+  function parseTransactionByCategory(transactions) {
+    const parsedRecentTransactionTemp = []
+    for (let i = 0; i < transactions.length; i++) {
+      let transactionCategory = getPaymentCategory(
+        transactions[i].category,
+        paymentCategories
+      )
+      let dayIndex = existsInArr(
+        "category",
+        transactionCategory,
+        parsedRecentTransactionTemp
+      )
+      if (dayIndex > -1) {
+        parsedRecentTransactionTemp[dayIndex].amount += parseFloat(
+          transactions[i].amount
+        )
+      } else {
+        parsedRecentTransactionTemp.push({
+          amount: parseFloat(transactions[i].amount),
+          category: transactionCategory,
         })
-      : useState({
-          label: [],
-          datasets: [],
+      }
+    }
+    return parsedRecentTransactionTemp
+  }
+
+  // Fetch Transactions
+  async function fetchNewTransactions(duration) {
+    try {
+      const fetchNewTransactionsRequest = await api(
+        "transactions/past/" + duration
+      )
+      setCachedTransactions({
+        duration,
+        data: fetchNewTransactionsRequest.data,
+      })
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  const DEFAULT_BAR_CHART_DATA = {
+    labels: parsedRecentTransactions.map((data) => data.day),
+    datasets: [
+      {
+        label: "Days",
+        data: parsedRecentTransactions.map((data) => data.amount),
+        ...CHART_STYLES,
+      },
+    ],
+  }
+
+  const parsedRecentTransactionsByCategory =
+    parseTransactionByCategory(recentTransactions)
+  const DEFAULT_PIE_CHART_DATA = {
+    labels: parsedRecentTransactionsByCategory.map((data) => data.category),
+    datasets: [
+      {
+        label: "Category",
+        data: parsedRecentTransactionsByCategory.map((data) => data.amount),
+        ...CHART_STYLES,
+      },
+    ],
+  }
+
+  const [cachedTransactions, setCachedTransactions] = useState({
+    duration: 7,
+    data: recentTransactions,
+  })
+
+  // BarChart States
+  const [barChartIsBusy, setBarChartIsBusy] = useState(false)
+  const [barChartData, setBarChartData] = useState(DEFAULT_BAR_CHART_DATA)
+  const [barChartDuration, setBarChartDuration] = useState(7)
+  const [barChartSort, setBarChartSort] = useState("day")
+
+  // PieChart States
+  const [pieChartIsBusy, setPieChartIsBusy] = useState(false)
+  const [pieChartData, setPieChartData] = useState(DEFAULT_PIE_CHART_DATA)
+  const [pieChartDuration, setPieChartDuration] = useState(7)
+  const [pieChartSort, setPieChartSort] = useState("category")
+
+  // Generate Chart Data
+  async function generateChartData(duration, sortBy, chartType) {
+    // console.log(duration, sortBy, chartType)
+    const parsedTransactions = []
+    for (let i = 0; i < cachedTransactions.data.length; i++) {
+      let transaction = cachedTransactions.data[i]
+      // Break Loop
+      if (
+        new Date(transaction.created_at) < new Date(dayCalculator(duration))
+      ) {
+        break
+      }
+
+      if (
+        new Date(transaction.created_at) < new Date(dayCalculator(duration))
+      ) {
+        break
+      }
+
+      let parsedTransactionsElement =
+        sortBy === "day"
+          ? [
+              new Intl.DateTimeFormat("en-US", { weekday: "long" }).format(
+                new Date(transaction.created_at)
+              ),
+              new Date(transaction.created_at).toLocaleDateString(),
+            ]
+          : getPaymentCategory(transaction.category, paymentCategories)
+
+      let transactionIndex = existsInArr(
+        sortBy,
+        parsedTransactionsElement,
+        parsedTransactions
+      )
+
+      if (transactionIndex > -1) {
+        parsedTransactions[transactionIndex].amount += parseFloat(
+          transaction.amount
+        )
+      } else {
+        parsedTransactions.push({
+          amount: parseFloat(transaction.amount),
+          [sortBy]: parsedTransactionsElement,
         })
+      }
+    }
 
-  const [barChartDuration, setBarChartDuration] = useState("7")
-  const [barChartSort, setBarChartSort] = useState("days")
-
-  const [pieChartData, setPieChartData] = recentTransactions
-    ? useState({
-        labels: generateLabels(7),
+    if (chartType === "bar") {
+      setBarChartData({
+        labels: parsedTransactions.map((data) => {
+          let output = data[barChartSort]
+          try {
+            output = JSON.parse(data[barChartSort])
+          } catch (err) {}
+          return output
+        }),
         datasets: [
           {
-            label: "Day",
-            data: recentTransactions.map((data) => data.amount),
+            label: "Days",
+            data: parsedTransactions.map((data) => data.amount),
             ...CHART_STYLES,
           },
         ],
       })
-    : useState({
-        label: [],
-        datasets: [],
+    } else if (chartType === "pie") {
+      setPieChartData({
+        labels: parsedTransactions.map((data) => {
+          let output = data[pieChartSort]
+          try {
+            output = JSON.parse(data[pieChartSort])
+          } catch (err) {}
+          return output
+        }),
+        datasets: [
+          {
+            label: "Days",
+            data: parsedTransactions.map((data) => data.amount),
+            ...CHART_STYLES,
+          },
+        ],
       })
-
-  const [pieChartDuration, setPieChartDuration] = useState("7")
-  const [pieChartSort, setPieChartSort] = useState("categories")
-
-  const currentDate = new Date()
-  const currentYear = currentDate.getFullYear()
-  let currentMonth = currentDate.getMonth()
-  const currentDay = currentDate.getDate()
-
-  if (currentMonth < 10) {
-    currentMonth = "0" + currentMonth
+    }
   }
 
-  // Filters Toggle
-  const [filters, setFilters] = useState(false)
-
-  // Filter Terms
-  const [categoryFilter, setCategoryFilter] = useState("all")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [startDateFilter, setStartDateFilter] = useState(null)
-  const [endDateFilter, setEndDateFilter] = useState(
-    `${currentYear}-${currentMonth}-${currentDay}`
-  )
-
-  function generateChartData(days, sort, chart = "bar") {
-    days = days === "all" ? allTransactions.length : days
-
-    const paymentCategoriesIds = []
-    const paymentCategoriesTitles = []
-
-    paymentCategories.forEach((category) => {
-      paymentCategoriesIds.push(category.id)
-      paymentCategoriesTitles.push(category.title)
-    })
-
-    const output = {
-      labels: sort === "days" ? generateLabels(days) : paymentCategoriesTitles,
-      datasets: [
-        {
-          label: "Day",
-          data: [],
-          backgroundColor: paymentCategories.map((category) => category.color),
-          ...CHART_STYLES,
-        },
-      ],
-    }
-
-    // Sort By Day
-    if (allTransactions && sort === "days") {
-      for (let i = 0; i < days; i++) {
-        output.datasets[0].data.push(allTransactions[i].amount)
+  // BarChart Duration Change
+  useEffect(() => {
+    setBarChartIsBusy(true)
+    async function handleBarChartDurationChange() {
+      if (Number(barChartDuration) > Number(cachedTransactions.duration)) {
+        await fetchNewTransactions(barChartDuration)
+      } else {
+        generateChartData(barChartDuration, barChartSort, "bar")
       }
+      setBarChartIsBusy(false)
     }
+    handleBarChartDurationChange()
+  }, [barChartDuration, barChartSort])
 
-    // Sort By Category
-    if (paymentCategories && sort === "categories") {
-      let transactionCategoryIndex
-      for (let i = 0; i < allTransactions.length; i++) {
-        const boundDate = new Date(
-          new Date().setDate(new Date().getDate() - days)
-        )
-
-        if (new Date(boundDate) > new Date(allTransactions[i].created_at)) {
-          break
-        }
-
-        // Get Array Index Of Current Transaction's Category
-        for (let j = 0; j < paymentCategoriesIds.length; j++) {
-          if (paymentCategoriesIds[j] == allTransactions[i].category) {
-            transactionCategoryIndex = j
-            break
-          }
-        }
-
-        // Increment The Value In The Output Array
-        if (transactionCategoryIndex >= 0) {
-          if (
-            typeof output.datasets[0].data[transactionCategoryIndex] ===
-            "undefined"
-          ) {
-            output.datasets[0].data[transactionCategoryIndex] = 0
-          } else {
-            output.datasets[0].data[transactionCategoryIndex] += parseFloat(
-              allTransactions[i].amount
-            )
-          }
-        } else {
-          output.labels.push("Others")
-        }
+  // PieChart Duration Change
+  useEffect(() => {
+    console.log(cachedTransactions.duration)
+    setPieChartIsBusy(true)
+    async function handlePieChartDurationChange() {
+      if (Number(pieChartDuration) > Number(cachedTransactions.duration)) {
+        await fetchNewTransactions(pieChartDuration)
+      } else {
+        generateChartData(pieChartDuration, pieChartSort, "pie")
       }
+      setPieChartIsBusy(false)
     }
+    handlePieChartDurationChange()
+  }, [pieChartDuration, pieChartSort])
 
-    chart === "bar" ? setBarChartData(output) : setPieChartData(output)
-  }
+  // Cached Transactions Change
+  useEffect(() => {
+    generateChartData(barChartDuration, barChartSort, "bar")
+    generateChartData(pieChartDuration, pieChartSort, "pie")
+  }, [cachedTransactions])
 
   return (
     <div
@@ -170,7 +244,6 @@ export default function Summaries() {
                   value={barChartDuration}
                   onChange={(e) => {
                     setBarChartDuration(e.target.value)
-                    generateChartData(e.target.value, barChartSort)
                   }}>
                   <option value="7">Last 7 Days</option>
                   <option value="30">Last 30 Days</option>
@@ -187,17 +260,20 @@ export default function Summaries() {
                   value={barChartSort}
                   onChange={(e) => {
                     setBarChartSort(e.target.value)
-                    generateChartData(barChartDuration, e.target.value)
                   }}>
-                  <option value="categories">Categories</option>
-                  <option value="days">Days</option>
+                  <option value="category">Categories</option>
+                  <option value="day">Days</option>
                 </select>
               </div>
             </div>
 
             {/* Render */}
             <div className="col p-2 flat-card-style">
-              <RenderChart type="bar" data={barChartData} />
+              {barChartIsBusy ? (
+                <span className="p-5">{retrievingPlaceholder}</span>
+              ) : (
+                <RenderChart type="bar" data={barChartData} />
+              )}
             </div>
           </div>
 
@@ -211,7 +287,6 @@ export default function Summaries() {
                   value={pieChartDuration}
                   onChange={(e) => {
                     setPieChartDuration(e.target.value)
-                    generateChartData(e.target.value, pieChartSort, "pie")
                   }}>
                   <option value="7">Last 7 Days</option>
                   <option value="30">Last 30 Days</option>
@@ -228,30 +303,34 @@ export default function Summaries() {
                   value={pieChartSort}
                   onChange={(e) => {
                     setPieChartSort(e.target.value)
-                    generateChartData(pieChartDuration, e.target.value, "pie")
                   }}>
-                  <option value="categories">Categories</option>
-                  <option value="days">Days</option>
+                  <option value="category">Categories</option>
+                  <option value="day">Days</option>
                 </select>
               </div>
             </div>
 
             {/* Render */}
             <div className="p-3 flat-card-style">
-              <RenderChart type="pie" data={pieChartData} />
+              {pieChartIsBusy ? (
+                <span className="p-5">{retrievingPlaceholder}</span>
+              ) : (
+                <RenderChart type="pie" data={pieChartData} />
+              )}
             </div>
           </div>
         </div>
       </div>
 
       {/* Transactions History */}
-      {/* Header */}
       <div className="col col-8 mt-3 mx-2 py-2">
         <div className="row">
+          {/* Header */}
           <div className="col col-10">
             <SectionHeader text={"Transactions History"} />
           </div>
           <div className="col">
+            {/* Filter Switch */}
             <div className="form-check form-switch">
               <label
                 className="form-check-label"
@@ -262,106 +341,18 @@ export default function Summaries() {
                 className="form-check-input"
                 type="checkbox"
                 role="switch"
-                id="flexSwitchCheckChecked"
-                onChange={(e) => {
-                  setFilters(!filters)
-                  setCategoryFilter("All")
-                  setStatusFilter("All")
-                  setStartDateFilter(null)
-                  setEndDateFilter(null)
-                }}
+                onChange={(e) => {}}
               />
             </div>
           </div>
         </div>
       </div>
+
       <div id="transactions-history" className="container-fluid mt-3 mb-5">
-        <div
-          className={`${filters ? "d-flex" : "d-none"} row py-2 col-8 fadeIn`}>
-          {/* Filter By Category */}
-          <div className="col col-3">
-            <div className="form-floating">
-              <select
-                className="form-select"
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}>
-                <option>All</option>
-                {paymentCategories &&
-                  paymentCategories.map((category, index) => (
-                    <option key={index}>{category.title}</option>
-                  ))}
-              </select>
-              <label>Category</label>
-            </div>
-          </div>
-
-          {/* Filter By Status */}
-          <div className="col col-3">
-            <div className="form-floating">
-              <select
-                className="form-select"
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}>
-                <option>All</option>
-                {transactionStatuses &&
-                  transactionStatuses.map((status, index) => (
-                    <option key={index}>
-                      {capitalizeFirsts(status.title)}
-                    </option>
-                  ))}
-              </select>
-              <label>Status</label>
-            </div>
-          </div>
-
-          {/* Filter By Date */}
-          <div className="col">
-            {/* Start Date */}
-            <div className="row">
-              <div className="col-6">
-                <div className="form-floating mb-3">
-                  <input
-                    type="date"
-                    className="form-control"
-                    value={startDateFilter ? startDateFilter : ""}
-                    onChange={(e) => {
-                      setStartDateFilter(e.target.value)
-                    }}
-                  />
-                  <label>Start Date</label>
-                </div>
-              </div>
-
-              {/* End Date */}
-              <div className="col-6">
-                <div className="form-floating mb-3">
-                  <input
-                    type="date"
-                    className="form-control"
-                    placeholder="DD/MM/YYYY"
-                    value={endDateFilter ? endDateFilter : ""}
-                    onChange={(e) => {
-                      setEndDateFilter(e.target.value)
-                    }}
-                  />
-                  <label>End Date</label>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
         <div className="row g-3">
           <div className="col">
             <div className="p-3 flat-card-style">
-              <TransactionsHistory
-                duration="all"
-                filter={{
-                  category: categoryFilter,
-                  status: statusFilter,
-                  startDate: startDateFilter,
-                  endDate: endDateFilter,
-                }}
-              />
+              <TransactionsHistory duration="all" />
             </div>
           </div>
 

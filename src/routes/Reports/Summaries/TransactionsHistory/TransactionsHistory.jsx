@@ -50,101 +50,106 @@ export default function TransactionsHistory({
   const dataPool = duration === "recent" ? recentTransactions : allTransactions
 
   // Construct Table Columns
-  const columns = paymentCategories
-    ? [
+  const columns = [
+    // Category
+    {
+      name: "Category",
+      selector: (row) => row.category,
+      sortable: true,
+      conditionalCellStyles: paymentCategories
+        ? paymentCategories.map((category) => {
+            return {
+              when: (row) =>
+                row.category ==
+                capitalizeFirsts(
+                  getPaymentCategory(
+                    category.id,
+                    paymentCategories
+                  ).toLowerCase()
+                ),
+              style: {
+                color: category.color.toUpperCase(),
+              },
+            }
+          })
+        : [],
+    },
+
+    // Amount
+    {
+      name: "Amount",
+      selector: (row) => row.amount,
+      sortable: true,
+      conditionalCellStyles: [
         {
-          name: "Category",
-          selector: (row) => row.category,
-          sortable: true,
-          conditionalCellStyles: paymentCategories
-            ? paymentCategories.map((category) => {
-                return {
-                  when: (row) =>
-                    row.category ==
-                    capitalizeFirsts(
-                      getPaymentCategory(
-                        category.id,
-                        paymentCategories
-                      ).toLowerCase()
-                    ),
-                  style: {
-                    color: category.color.toUpperCase(),
-                  },
-                }
-              })
-            : [],
+          when: (row) => row.status === "Successful",
+          style: {
+            color: "lightgreen",
+          },
         },
+
         {
-          name: "Amount",
-          selector: (row) => row.amount,
-          sortable: true,
-          conditionalCellStyles: [
-            {
-              when: (row) => row.status === "Successful",
-              style: {
-                color: "lightgreen",
-              },
-            },
-
-            {
-              when: (row) => row.status === "Failed",
-              style: {
-                color: "red",
-              },
-            },
-
-            {
-              when: (row) => row.status === "Pending",
-              style: {
-                color: "coral",
-              },
-            },
-
-            {
-              when: (row) => row.status === "Unknown",
-              style: {
-                color: "aqua",
-              },
-            },
-          ],
+          when: (row) => row.status === "Failed",
+          style: {
+            color: "red",
+          },
         },
+
         {
-          name: "Status",
-          selector: (row) => row.status,
-          sortable: true,
-          conditionalCellStyles: [
-            {
-              when: (row) => row.status === "Successful",
-              style: {
-                color: "lightgreen",
-              },
-            },
-
-            {
-              when: (row) => row.status === "Failed",
-              style: {
-                color: "red",
-              },
-            },
-
-            {
-              when: (row) => row.status === "Pending",
-              style: {
-                color: "coral",
-              },
-            },
-
-            {
-              when: (row) => row.status === "Unknown",
-              style: {
-                color: "aqua",
-              },
-            },
-          ],
+          when: (row) => row.status === "Pending",
+          style: {
+            color: "coral",
+          },
         },
-        { name: "Date", selector: (row) => row.date, sortable: true },
-      ]
-    : []
+
+        {
+          when: (row) => row.status === "Unknown",
+          style: {
+            color: "aqua",
+          },
+        },
+      ],
+    },
+
+    // Status
+    {
+      name: "Status",
+      selector: (row) => row.status,
+      sortable: true,
+      conditionalCellStyles: [
+        {
+          when: (row) => row.status === "Successful",
+          style: {
+            color: "lightgreen",
+          },
+        },
+
+        {
+          when: (row) => row.status === "Failed",
+          style: {
+            color: "red",
+          },
+        },
+
+        {
+          when: (row) => row.status === "Pending",
+          style: {
+            color: "coral",
+          },
+        },
+
+        {
+          when: (row) => row.status === "Unknown",
+          style: {
+            color: "aqua",
+          },
+        },
+      ],
+    },
+
+    // Date
+    { name: "Date", selector: (row) => row.date, sortable: true },
+  ]
 
   function filterData(data) {
     if (!filter) return data
@@ -237,7 +242,7 @@ export default function TransactionsHistory({
         headCells: {
           style: {
             fontWeight: "bold",
-            fontSize: "1.2em",
+            fontSize: "1rem",
             color: "white",
           },
         },

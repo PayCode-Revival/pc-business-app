@@ -6,44 +6,24 @@ import RenderChart from "../RenderChart/RenderChart"
 import {
   currency,
   retrievingPlaceholder,
-  generateLabels,
   CHART_STYLES,
+  WEEKDAYS,
 } from "./../../statics/allFunctions"
 import { ApiDataContext } from "../../contexts/ApiDataContext"
 import TransactionsHistory from "../../routes/Reports/Summaries/TransactionsHistory/TransactionsHistory"
 
 export default function Main({}) {
   const {
-    checkLoginStatus,
     walletBalance,
     savedBankAccounts,
-    recentTransactions,
+    parsedRecentTransactions,
     userAccounts,
     monthTransactions,
-    executeAll,
   } = useContext(ApiDataContext)
 
-  useEffect(() => {
-    // executeAll()
-  }, [])
-
-  // Today's Incoming Transactions Calculation
-  let totalTransVal
-  if (recentTransactions) {
-    let i = 0
-    totalTransVal = 0
-    for (let i = 0; i < recentTransactions.length; i++) {
-      if (
-        new Date().toLocaleDateString() ===
-        new Date(recentTransactions[i].created_at).toLocaleDateString()
-      ) {
-        totalTransVal += parseFloat(recentTransactions[i].amount)
-      }
-    }
-    totalTransVal = currency(totalTransVal)
-  } else {
-    totalTransVal = retrievingPlaceholder
-  }
+  const totalTransVal = parsedRecentTransactions.length
+    ? parsedRecentTransactions[0].amount
+    : 0
 
   // This Month's Incoming Transactions Calculation
   let monthTotal
@@ -57,21 +37,16 @@ export default function Main({}) {
     monthTotal = retrievingPlaceholder
   }
 
-  const chartData = recentTransactions
-    ? {
-        labels: generateLabels(7),
-        datasets: [
-          {
-            label: "Day",
-            data: recentTransactions.map((data) => data.amount),
-            ...CHART_STYLES,
-          },
-        ],
-      }
-    : {
-        label: [],
-        datasets: [],
-      }
+  const chartData = {
+    labels: parsedRecentTransactions.map((data, index) => data.day),
+    datasets: [
+      {
+        label: "Day",
+        data: parsedRecentTransactions.map((data) => data.amount),
+        ...CHART_STYLES,
+      },
+    ],
+  }
 
   return (
     <div
@@ -113,7 +88,7 @@ export default function Main({}) {
               <FlatCard
                 iconName="calendar_today"
                 title="Today's Transactions"
-                text={totalTransVal ? totalTransVal : 0}
+                text={currency(totalTransVal)}
               />
             </div>
           </div>

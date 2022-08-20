@@ -44,7 +44,10 @@ export default function NavBarAlt({
                 changeActiveNav(navItem.title)
                 if (!navItem.children) {
                   setActiveNav(navItem.title)
-                  navigate(`/${navItem.title.toLowerCase()}`, { replace: true })
+                  navigate(
+                    `/${navItem.title.replaceAll(" ", "-").toLowerCase()}`,
+                    { replace: true }
+                  )
                 }
               }}>
               <span className="d-flex align-items-center">

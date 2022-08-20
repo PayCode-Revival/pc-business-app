@@ -52,6 +52,7 @@ export default function Form() {
           setAccountName(null)
           setShowToast(true)
           setAccountInfoError(null)
+          getSavedBankAccounts()
           setTimeout(() => {
             setShowToast(false)
           }, 1500)

@@ -1,10 +1,8 @@
 import {} from "react"
 import { Icon } from "@mui/material"
 import { useContext, useState } from "react"
-import { SectionHeader } from "../../../components/SectionHeader/SectionHeader"
 import { ApiDataContext } from "../../../contexts/ApiDataContext"
 import {
-  capitalizeFirstLetter,
   capitalizeFirsts,
   currency,
   retrievingPlaceholder,
@@ -14,10 +12,15 @@ import "./Manage.css"
 import UpdateForm from "../UpdateForm"
 import Toast from "../../../components/Toast/Toast"
 import { api } from "../../../statics/api"
+import QRCode from "react-qr-code"
 
 export default function Manage() {
-  let { paymentCategories, getPaymentCategories, savedBankAccounts } =
-    useContext(ApiDataContext)
+  let {
+    paymentCategories,
+    getPaymentCategories,
+    savedBankAccounts,
+    businessInfo,
+  } = useContext(ApiDataContext)
 
   function getBankAccountName(id) {
     for (let i = 0; i < savedBankAccounts.length; i++) {
@@ -39,6 +42,7 @@ export default function Manage() {
   const [toastOpen, setToastOpen] = useState(false)
   const [toastSeverity, setToastSeverity] = useState(null)
   const [toastMessage, setToastMessage] = useState("")
+  const [modalCloseIcon, setModalCloseIcon] = useState(false)
 
   async function deletePaymentCategory(id) {
     // console.log(paymentID)
@@ -83,6 +87,7 @@ export default function Manage() {
         cancelBtnText={cancelBtnText}
         saveBtnText={saveBtnText}
         saveBtnOnClickFunc={deletePaymentCategory}
+        showCloseIcon={modalCloseIcon}
       />
 
       <div
@@ -113,12 +118,6 @@ export default function Manage() {
                           color: "var(--primary-color)",
                           fontSize: "0.75vw",
                         }}>
-                        {/* Payment Type */}
-                        {category.type.toLowerCase() !== "none" &&
-                          capitalizeFirstLetter(
-                            category.type.toLowerCase() + " | "
-                          )}
-
                         {/* Fixed Amount */}
                         {category.type.toLowerCase() === "fixed" &&
                           category.amount &&
@@ -233,9 +232,18 @@ export default function Manage() {
                         data-mdb-toggle="modal"
                         data-mdb-target="#exampleModal"
                         onClick={() => {
-                          setModalTitle("QR Code")
+                          setModalTitle(category.title + " QR Code")
                           setSaveBtnText("Save")
-                          setModalBody(<>QR Generated...</>)
+                          setModalCloseIcon(true)
+                          setModalBody(
+                            <div className="m-5 d-flex justify-content-center">
+                              <QRCode
+                                value={category.encoded_qr_data || ""}
+                                title={category.title || ""}
+                                level="H"
+                              />
+                            </div>
+                          )
                         }}>
                         <Icon style={{ color: "var(--primary-color)" }}>
                           qr_code
@@ -244,7 +252,7 @@ export default function Manage() {
                           className="text m-2"
                           role={"button"}
                           style={{ color: "var(--primary-color)" }}>
-                          QR Code
+                          QR
                         </span>
                       </div>
                     </div>

@@ -1,23 +1,24 @@
 import { api } from "./api"
 
+export const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat"]
+
+const chartColors = [
+  generateRandomColor(),
+  generateRandomColor(),
+  generateRandomColor(),
+  generateRandomColor(),
+  generateRandomColor(),
+  generateRandomColor(),
+  generateRandomColor(),
+]
+
 export const CHART_STYLES = {
-  backgroundColor: [
-    "rgba(255, 99, 132, 0.2)",
-    "rgba(54, 162, 235, 0.2)",
-    "rgba(255, 206, 86, 0.2)",
-    "rgba(75, 192, 192, 0.2)",
-    "rgba(153, 102, 255, 0.2)",
-    "rgba(255, 159, 64, 0.2)",
-    "rgba(255, 129, 68, 0.1)",
-  ],
+  backgroundColor: [...chartColors],
   borderColor: [
-    "rgba(255, 99, 132, 1)",
-    "rgba(54, 162, 235, 1)",
-    "rgba(255, 206, 86, 1)",
-    "rgba(75, 192, 192, 1)",
-    "rgba(153, 102, 255, 1)",
-    "rgba(255, 159, 64, 1)",
-    "rgba(255, 115, 94, 1)",
+    ...chartColors.map((color) => {
+      const inverseColor = invertHex(color.substring(1, 7))
+      return "#" + inverseColor
+    }),
   ],
   borderWidth: 7,
   color: "blue",
@@ -61,7 +62,7 @@ export function invertHex(hexnum) {
   complexnum.E = "1"
   complexnum.F = "0"
 
-  for (i = 0; i < 6; i++) {
+  for (let i = 0; i < 6; i++) {
     if (!isNaN(splitnum[i])) {
       resultnum += simplenum[splitnum[i]]
     } else if (complexnum[splitnum[i]]) {
@@ -168,10 +169,39 @@ export function getBusinessUserRoleName(code, businessUserRoles) {
 }
 
 export function capitalizeFirsts(name) {
-  const splitName = name.split(" ")
+  if (!name) {
+    return ""
+  }
+  name = name.toLowerCase()
+  const splitName = String(name).split(" ")
   const namesUpper = []
   for (const n of splitName) {
-    namesUpper.push(n[0].toUpperCase() + n.slice(1))
+    n[0] && namesUpper.push(n[0].toUpperCase() + n.slice(1))
   }
   return namesUpper.join(" ")
+}
+
+export function lowerCase(str) {
+  if (!str) return ""
+  str = String(str)
+  return str.toLowerCase()
+}
+
+export function existsInArr(identifier, val, arr) {
+  for (let i = 0; i < arr.length; i++) {
+    if (typeof val !== "string") {
+      val = JSON.stringify(val)
+    }
+
+    if (typeof arr[i][identifier] !== "string") {
+      arr[i][identifier] = JSON.stringify(arr[i][identifier])
+    }
+
+    // console.log(val, arr[i][identifier])
+
+    if (val.toLowerCase() === arr[i][identifier].toLowerCase()) {
+      return i
+    }
+  }
+  return -1
 }

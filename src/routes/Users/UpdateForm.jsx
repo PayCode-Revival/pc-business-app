@@ -1,23 +1,28 @@
 import React, { useContext, useState, useRef, useEffect } from "react"
 import { Icon } from "@mui/material"
 import { ApiDataContext } from "../../contexts/ApiDataContext"
-import { capitalizeFirsts } from "../../statics/allFunctions"
+import {
+  capitalizeFirsts,
+  lowerCase,
+  retrievingPlaceholder,
+} from "../../statics/allFunctions"
 import { api } from "../../statics/api"
 import Toast from "../../components/Toast/Toast"
 
 export default function UpdateForm({ data }) {
-  const { getUserAccounts } = useContext(ApiDataContext)
-  const [accessLevel, setAccessLevel] = useState("Admin")
-  const [businessUserRole, setBusinessUserRole] = useState("Administrator")
-  const [username, setUsername] = useState("")
-  const [firstName, setFirstName] = useState("")
-  const [lastName, setLastName] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
+  const { getUserAccounts, getLoggedInUserInfo } = useContext(ApiDataContext)
+  const [accessLevel, setAccessLevel] = useState(null)
+  const [businessUserRole, setBusinessUserRole] = useState(null)
+  const [username, setUsername] = useState(null)
+  const [firstName, setFirstName] = useState(null)
+  const [lastName, setLastName] = useState(null)
+  const [email, setEmail] = useState(null)
+  const [password, setPassword] = useState(null)
+  const [confirmPassword, setConfirmPassword] = useState(null)
   const [selectedImage, setSelectedImage] = useState(false)
   const [uploadInputValue, setUploadInputValue] = useState(null)
-  const [showBtn, setShowBtn] = useState(false)
+  const [showBtn, setShowBtn] = useState(true)
+  const [changeDetected, setChangeDetected] = useState(false)
 
   const [toastOpen, setToastOpen] = useState(false)
   const [showStatus, setShowStatus] = useState(true)
@@ -42,25 +47,26 @@ export default function UpdateForm({ data }) {
   }
 
   async function handleFormSubmit(businessUserID) {
-    submitButtonRef.current.disabled = true
+    setShowBtn(false)
     try {
       const payload = {
         username: username ? username : data.username,
-        first_name: firstName ? firstName : data.first_name,
-        last_name: lastName ? lastName : data.last_name,
-        role: accessLevel ? accessLevel : data.role,
-        business_role: businessUserRole ? businessUserRole : data.business_role,
-        email: email ? email : data.email,
+        first_name: firstName || data.first_name,
+        last_name: lastName || data.last_name,
+        role: accessLevel || data.role,
+        business_role: businessUserRole || data.business_role,
+        email: email || data.email,
         display_picture: uploadInputValue
           ? uploadInputValue
           : data.display_picture,
       }
-      password.length ? (payload.password = password) : ""
-      password.length && confirmPassword.length && password === confirmPassword
+      password && (payload.password = password)
+      password && confirmPassword && password === confirmPassword
         ? (payload.password_confirmation = confirmPassword)
         : ""
-      const addBusinessUserRequest = await api.post(
+      const addBusinessUserRequest = await api(
         "business/users/update/" + businessUserID,
+        "post",
         payload
       )
       if (
@@ -85,14 +91,15 @@ export default function UpdateForm({ data }) {
           setUploadInputValue(null)
           closeModalRef.current.click()
           getUserAccounts()
+          getLoggedInUserInfo()
         }, 1500)
       }
     } catch (err) {
-      console.log(err.response)
       setStatusCode(0)
       setShowStatus(true)
       setStatusMessage(err.response.data)
     }
+    setShowBtn(true)
   }
 
   useEffect(() => {
@@ -102,11 +109,13 @@ export default function UpdateForm({ data }) {
       (confirmPassword && confirmPassword.length) ||
       (firstName && firstName.length && firstName !== data.first_name) ||
       (lastName && lastName.length && lastName !== data.last_name) ||
-      (email && email.length && email !== data.email)
+      (email && email.length && email !== data.email) ||
+      (businessUserRole && businessUserRole.length !== data.business_role) ||
+      (accessLevel && accessLevel !== data.role)
     ) {
-      setShowBtn(true)
+      setChangeDetected(true)
     } else {
-      setShowBtn(false)
+      setChangeDetected(false)
     }
   })
 
@@ -165,38 +174,33 @@ export default function UpdateForm({ data }) {
 
             {/* Roles */}
             <div className="row p-1">
-              {/* Select Access Level */}
+              {/* Access Level */}
               <div className="col">
                 <div className="form-floating">
                   <select
                     className="form-select"
-                    value={
-                      accessLevel
-                        ? accessLevel
-                        : capitalizeFirsts(data.role.toLowerCase())
-                    }
+                    value={accessLevel || data.role}
                     onChange={(e) => {
                       setAccessLevel(e.target.value)
                     }}>
-                    <option>Admin</option>
-                    <option>Assistant</option>
-                    <option>Custom Role</option>
+                    <option value={1}>Admin</option>
+                    <option value={2}>Assistant</option>
+                    <option value={0}>Custom Role</option>
                   </select>
                   <label>User Access Level</label>
                 </div>
               </div>
 
+              {/* Business Role */}
               <div className="col">
-                {/* Business Role */}
                 <div className="form-floating">
                   <input
                     type="text"
                     className="form-control"
                     placeholder=" "
                     value={
-                      businessUserRole
-                        ? businessUserRole
-                        : capitalizeFirsts(data.business_role.toLowerCase())
+                      businessUserRole ||
+                      capitalizeFirsts(data.business_role.toLowerCase())
                     }
                     onChange={(e) => {
                       setBusinessUserRole(e.target.value)
@@ -215,7 +219,7 @@ export default function UpdateForm({ data }) {
                     type="text"
                     className="form-control"
                     placeholder=" "
-                    value={username ? username : data.username}
+                    value={username || data.username}
                     onChange={(e) => {
                       setUsername(e.target.value)
                     }}
@@ -234,11 +238,7 @@ export default function UpdateForm({ data }) {
                     type="text"
                     className="form-control"
                     placeholder=" "
-                    value={
-                      firstName
-                        ? firstName
-                        : capitalizeFirsts(data.first_name.toLowerCase())
-                    }
+                    value={firstName || capitalizeFirsts(data.first_name)}
                     onChange={(e) => {
                       setFirstName(e.target.value)
                     }}
@@ -253,11 +253,7 @@ export default function UpdateForm({ data }) {
                     type="text"
                     className="form-control"
                     placeholder=" "
-                    value={
-                      lastName
-                        ? lastName
-                        : capitalizeFirsts(data.last_name.toLowerCase())
-                    }
+                    value={lastName || capitalizeFirsts(data.last_name)}
                     onChange={(e) => {
                       setLastName(e.target.value)
                     }}
@@ -275,7 +271,7 @@ export default function UpdateForm({ data }) {
                     type="email"
                     className="form-control"
                     placeholder=" "
-                    value={email ? email : data.email.toLowerCase()}
+                    value={email || lowerCase(data.email)}
                     onChange={(e) => {
                       setEmail(e.target.value)
                     }}
@@ -294,7 +290,7 @@ export default function UpdateForm({ data }) {
                     type="password"
                     className="form-control"
                     placeholder=" "
-                    value={password}
+                    value={password || ""}
                     onChange={(e) => {
                       setPassword(e.target.value)
                     }}
@@ -315,7 +311,7 @@ export default function UpdateForm({ data }) {
                     type="password"
                     className="form-control"
                     placeholder=" "
-                    value={confirmPassword}
+                    value={confirmPassword || ""}
                     onChange={(e) => {
                       setConfirmPassword(e.target.value)
                     }}
@@ -379,23 +375,26 @@ export default function UpdateForm({ data }) {
             </div>
 
             {/* Button */}
-            {showBtn && (
-              <div className="row mt-3">
-                <div className="input-group col">
-                  <button
-                    ref={submitButtonRef}
-                    className="btn btn-block btn-lg d-flex align-items-center justify-content-center fw-bolder zoomIn fadeIn flat-card-style"
-                    type="submit"
-                    style={{
-                      color: "var(--primary-color)",
-                      backgroundColor: "var(--accent-color)",
-                    }}>
-                    <Icon>person</Icon>
-                    <span className="ms-1 fs-6">Update User</span>
-                  </button>
+            {changeDetected &&
+              (showBtn ? (
+                <div className="row mt-3">
+                  <div className="input-group col">
+                    <button
+                      ref={submitButtonRef}
+                      className="btn btn-block btn-lg d-flex align-items-center justify-content-center fw-bolder zoomIn fadeIn flat-card-style"
+                      type="submit"
+                      style={{
+                        color: "var(--primary-color)",
+                        backgroundColor: "var(--accent-color)",
+                      }}>
+                      <Icon>person</Icon>
+                      <span className="ms-1 fs-6">Update User</span>
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )}
+              ) : (
+                <span className="p-5">{retrievingPlaceholder}</span>
+              ))}
           </div>
         </form>
       </div>

@@ -27,7 +27,6 @@ export default function Form() {
   const [description, setDescription] = useState("")
 
   async function handleFormSubmit() {
-    console.log(defaultAccount)
     setShowBtn(false)
     try {
       const addPaymentCategoryRequest = await api(
@@ -48,6 +47,7 @@ export default function Form() {
         setStatusCode(1)
         setStatusMessage("Payment Category Added Successfully")
         setToastOpen(true)
+        await getPaymentCategories()
         setTimeout(() => {
           setToastOpen(false)
           setShowStatus(false)
@@ -59,11 +59,10 @@ export default function Form() {
           setMaxAmount(0)
           setDescription("")
           setDefaultAccount("Wallet")
-          getPaymentCategories()
-        }, 1500)
+        }, 1000)
       }
     } catch (err) {
-      console.log(err.response)
+      console.log(err.response.data)
       setStatusCode(0)
       setShowStatus(true)
       setStatusMessage(err.message)
@@ -228,7 +227,7 @@ export default function Form() {
                     account.active && (
                       <option key={index} value={account.id}>
                         {capitalizeFirsts(
-                          `${account.bank_name} - ${account.account_name} - ${account.account_number}`.toLocaleLowerCase()
+                          `${account.bank_name} - ${account.account_name} - ${account.account_number}`.toLowerCase()
                         )}
                       </option>
                     )
