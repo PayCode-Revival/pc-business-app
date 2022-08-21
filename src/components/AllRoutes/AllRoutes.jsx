@@ -206,6 +206,7 @@ export const AllRoutes = () => {
           }}>
           <UserFormContext.Provider value={{}}>
             <Routes location={location} key={location.pathname}>
+              <Route path="*" element={<App />} />
               <Route path="/" element={<App />} />
               <Route path="login" element={<Login />} />
               <Route path="register" element={<Register />} />
@@ -218,7 +219,6 @@ export const AllRoutes = () => {
               <Route path="qr-code/" element={<QR />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/help" element={<Help />} />
-              <Route path="*" element={<App />} />
               {/* <Route path="/test" element={<Modal />} /> */}
             </Routes>
           </UserFormContext.Provider>
