@@ -31,7 +31,7 @@ export default function Register() {
       phone_number: phoneNumber,
       name: businessName,
       email,
-      username: adminUsername,
+      username: adminUsername.toLowerCase(),
       password,
       password_confirmation: password,
       role: 1,

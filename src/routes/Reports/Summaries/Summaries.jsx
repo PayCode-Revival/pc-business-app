@@ -103,6 +103,24 @@ export default function Summaries() {
   const [pieChartDuration, setPieChartDuration] = useState(7)
   const [pieChartSort, setPieChartSort] = useState("category")
 
+  // Filter States
+  const currentDate = new Date()
+  const currentYear = currentDate.getFullYear()
+  let currentMonth = currentDate.getMonth()
+  const currentDay = currentDate.getDate()
+
+  if (currentMonth < 10) {
+    currentMonth = "0" + currentMonth
+  }
+
+  const [filters, setFilters] = useState(false)
+  const [categoryFilter, setCategoryFilter] = useState("all")
+  const [statusFilter, setStatusFilter] = useState("all")
+  const [startDateFilter, setStartDateFilter] = useState(null)
+  const [endDateFilter, setEndDateFilter] = useState(
+    `${currentYear}-${currentMonth}-${currentDay}`
+  )
+
   // Generate Chart Data
   async function generateChartData(duration, sortBy, chartType) {
     // console.log(duration, sortBy, chartType)
@@ -223,9 +241,7 @@ export default function Summaries() {
   }, [cachedTransactions])
 
   return (
-    <div
-      className="fadeIn d-flex flex-column flex-grow-1 h-100 overflow-auto scrollbar"
-      id="summaries">
+    <div className="fadeIn d-flex flex-column flex-grow-1 h-100 overflow-auto scrollbar">
       {/* Header */}
       <div className="col-7 text-nowrap">
         <SectionHeader text={"Charts Analytics"} />
@@ -329,6 +345,8 @@ export default function Summaries() {
           <div className="col col-10">
             <SectionHeader text={"Transactions History"} />
           </div>
+
+          {/* Filter Switch */}
           <div className="col">
             {/* Filter Switch */}
             <div className="form-check form-switch">
@@ -341,18 +359,109 @@ export default function Summaries() {
                 className="form-check-input"
                 type="checkbox"
                 role="switch"
-                onChange={(e) => {}}
+                onChange={(e) => {
+                  setFilters(!filters)
+                  setCategoryFilter("All")
+                  setStatusFilter("All")
+                  setStartDateFilter(null)
+                  setEndDateFilter(null)
+                }}
               />
             </div>
           </div>
         </div>
       </div>
 
-      <div id="transactions-history" className="container-fluid mt-3 mb-5">
+      <div className="container-fluid mt-3 mb-5">
+        {/* Filters */}
+        <div
+          className={`${filters ? "d-flex" : "d-none"} row py-2 col-8 fadeIn`}>
+          {/* Category */}
+          <div className="col col-3">
+            <div className="form-floating">
+              <select
+                className="form-select"
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}>
+                <option>All</option>
+                {paymentCategories &&
+                  paymentCategories.map((category, index) => (
+                    <option key={index}>{category.title}</option>
+                  ))}
+              </select>
+              <label>Category</label>
+            </div>
+          </div>
+
+          {/* Status */}
+          <div className="col col-3">
+            <div className="form-floating">
+              <select
+                className="form-select"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}>
+                <option>All</option>
+                {transactionStatuses &&
+                  transactionStatuses.map((status, index) => (
+                    <option key={index}>
+                      {capitalizeFirsts(status.title)}
+                    </option>
+                  ))}
+              </select>
+              <label>Status</label>
+            </div>
+          </div>
+
+          {/* Date */}
+          <div className="col">
+            <div className="row">
+              {/* Start */}
+              <div className="col-6">
+                <div className="form-floating mb-3">
+                  <input
+                    type="date"
+                    className="form-control"
+                    value={startDateFilter ? startDateFilter : ""}
+                    onChange={(e) => {
+                      setStartDateFilter(e.target.value)
+                    }}
+                  />
+                  <label>Start Date</label>
+                </div>
+              </div>
+
+              {/* End */}
+              <div className="col-6">
+                <div className="form-floating mb-3">
+                  <input
+                    type="date"
+                    className="form-control"
+                    placeholder="DD/MM/YYYY"
+                    value={endDateFilter ? endDateFilter : ""}
+                    onChange={(e) => {
+                      setEndDateFilter(e.target.value)
+                    }}
+                  />
+                  <label>End Date</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Table */}
         <div className="row g-3">
           <div className="col">
             <div className="p-3 flat-card-style">
-              <TransactionsHistory duration="all" />
+              <TransactionsHistory
+                duration="all"
+                filter={{
+                  category: categoryFilter,
+                  status: statusFilter,
+                  startDate: startDateFilter,
+                  endDate: endDateFilter,
+                }}
+              />
             </div>
           </div>
 

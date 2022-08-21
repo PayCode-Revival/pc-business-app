@@ -34,7 +34,7 @@ export default function Form({}) {
     setShowBtn(false)
     try {
       const addBusinessUserRequest = await api("business/users/add", "post", {
-        username,
+        username: username.toLowerCase(),
         password,
         password_confirmation: confirmPassword,
         first_name: firstName,

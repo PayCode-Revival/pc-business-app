@@ -7,7 +7,6 @@ import "./Login.css"
 import { retrievingPlaceholder } from "../../statics/allFunctions"
 import { useNavigate } from "react-router-dom"
 import { ApiDataContext } from "../../contexts/ApiDataContext"
-import Register from "../Register/Register"
 
 export default function Login({}) {
   const { loggedIn, setLoggedIn, checkLoginStatus, executeAll } =
@@ -32,7 +31,7 @@ export default function Login({}) {
     try {
       const loginRequest = await api("login/business", "post", {
         business: businessID,
-        auth_id: authID,
+        auth_id: authID.toLowerCase(),
         password: password,
       })
 
