@@ -20,7 +20,7 @@ export default function QR() {
         <SidebarAlt currentState={sidebar} openedNavItem={"QR Code"} />
         <div className={`fadeIn p-5 m-1 d-flex flex-column flex-grow-1`}>
           <div className="container-fluid p-5 d-flex justify-content-center flat-card">
-            <QRCode value={businessInfo.encoded_qr_data || ""} />
+            <QRCode value={businessInfo.encoded_qr_data} level="L" />
           </div>
         </div>
       </div>
