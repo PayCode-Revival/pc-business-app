@@ -110,7 +110,7 @@ export const AllRoutes = () => {
     setSavedBankAccounts(savedBankAccounts)
   }
 
-  // API Cal For User Accounts
+  // API Call For User Accounts
   async function getUserAccounts() {
     const userAccounts = await (await api("business/users/all")).data
     setUserAccounts(userAccounts)
