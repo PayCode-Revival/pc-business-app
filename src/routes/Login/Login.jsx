@@ -35,6 +35,8 @@ export default function Login({}) {
         password: password,
       })
 
+      console.log(loginRequest)
+
       if (loginRequest.status == "201") {
         localStorage.setItem("bearer-token", loginRequest.data.token)
         setLoggedIn(true)
