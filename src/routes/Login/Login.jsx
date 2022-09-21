@@ -35,7 +35,13 @@ export default function Login({}) {
         password: password,
       })
 
+<<<<<<< Updated upstream
       if (loginRequest.status == "201") {
+=======
+      // console.log(loginRequest)
+
+      if (loginRequest.status == "201" || loginRequest.status == "200") {
+>>>>>>> Stashed changes
         localStorage.setItem("bearer-token", loginRequest.data.token)
         setLoggedIn(true)
         setToastSeverity("success")
