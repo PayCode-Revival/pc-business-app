@@ -21,6 +21,7 @@ import { api, getSavedBearerToken } from "../../statics/api"
 import { useNavigate } from "react-router-dom"
 import Register from "../../routes/Register/Register"
 import QR from "../../routes/QR/QR"
+import LiveTransactions from "../../routes/LiveTransactions/LiveTransactions"
 
 export const AllRoutes = () => {
   const location = useLocation()
@@ -211,6 +212,7 @@ export const AllRoutes = () => {
               <Route path="login" element={<Login />} />
               <Route path="register" element={<Register />} />
               <Route path="dashboard" element={<App />} />
+              <Route path="live" element={<LiveTransactions />} />
               <Route path="wallet/:action" element={<Wallet />} />
               <Route path="accounts/:action" element={<Accounts />} />
               <Route path="payments/:action" element={<Payments />} />
